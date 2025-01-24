@@ -1,0 +1,203 @@
+import{_ as a}from"./chunks/es-dsl-full-text-3.D-0L5xgq.js";import{_ as n,c as p,ai as t,o as e}from"./chunks/framework.BrYByd3F.js";const l="/vitepress-blog-template/images/db/es/es-dsl-full-text-1.png",i="/vitepress-blog-template/images/db/es/es-dsl-full-text-2.png",o="/vitepress-blog-template/images/db/es/es-dsl-full-text-4.png",c="/vitepress-blog-template/images/db/es/es-dsl-full-text-5.png",u="/vitepress-blog-template/images/db/es/es-dsl-full-text-6.png",r="/vitepress-blog-template/images/db/es/es-dsl-full-text-7.png",q="/vitepress-blog-template/images/db/es/es-dsl-full-text-8.png",h="/vitepress-blog-template/images/db/es/es-dsl-full-text-9.png",d="/vitepress-blog-template/images/db/es/es-dsl-full-text-11.png",m="/vitepress-blog-template/images/db/es/es-dsl-full-text-12.png",g="/vitepress-blog-template/images/db/es/es-dsl-full-text-13.png",b="/vitepress-blog-template/images/db/es/es-dsl-full-text-14.png",_="/vitepress-blog-template/images/db/es/es-dsl-full-text-15.png",v="/vitepress-blog-template/images/db/es/es-dsl-full-text-16.png",k="/vitepress-blog-template/images/db/es/es-dsl-full-text-17.png",S=JSON.parse('{"title":"ES详解 - 查询：DSL查询之全文搜索详解","description":"","frontmatter":{},"headers":[],"relativePath":"db/nosql-es/elasticsearch-x-dsl-full-text.md","filePath":"db/nosql-es/elasticsearch-x-dsl-full-text.md","lastUpdated":1737706346000}'),y={name:"db/nosql-es/elasticsearch-x-dsl-full-text.md"};function f(x,s,w,C,E,T){return e(),p("div",null,s[0]||(s[0]=[t('<h1 id="es详解-查询-dsl查询之全文搜索详解" tabindex="-1">ES详解 - 查询：DSL查询之全文搜索详解 <a class="header-anchor" href="#es详解-查询-dsl查询之全文搜索详解" aria-label="Permalink to &quot;ES详解 - 查询：DSL查询之全文搜索详解&quot;">​</a></h1><blockquote><p>DSL查询极为常用的是对文本进行搜索，我们叫全文搜索，本文主要对全文搜索进行详解。@pdai</p></blockquote><h2 id="写在前面-谈谈如何从官网学习" tabindex="-1">写在前面:谈谈如何从官网学习 <a class="header-anchor" href="#写在前面-谈谈如何从官网学习" aria-label="Permalink to &quot;写在前面:谈谈如何从官网学习&quot;">​</a></h2><p>提示</p><p>很多读者在看官方文档学习时存在一个误区，以DSL中full text查询为例，其实内容是非常多的， 没有取舍/没重点去阅读， 要么需要花很多时间，要么头脑一片浆糊。所以这里重点谈谈我的理解。@pdai</p><p>一些理解：</p><ul><li>第一点：<strong>全局观</strong>，即我们现在学习内容在整个体系的哪个位置？</li></ul><p>如下图，可以很方便的帮助你构筑这种体系</p><p><img src="'+a+'" alt=""></p><ul><li>第二点： <strong>分类别</strong>，从上层理解，而不是本身</li></ul><p>比如Full text Query中，我们只需要把如下的那么多点分为3大类，你的体系能力会大大提升</p><p><img src="'+l+'" alt=""></p><ul><li>第三点： <strong>知识点还是API</strong>？ API类型的是可以查询的，只需要知道大致有哪些功能就可以了。</li></ul><p><img src="'+i+`" alt=""></p><h2 id="match类型" tabindex="-1">Match类型 <a class="header-anchor" href="#match类型" aria-label="Permalink to &quot;Match类型&quot;">​</a></h2><blockquote><p>第一类：match 类型</p></blockquote><h3 id="match-查询的步骤" tabindex="-1">match 查询的步骤 <a class="header-anchor" href="#match-查询的步骤" aria-label="Permalink to &quot;match 查询的步骤&quot;">​</a></h3><p>在<a href="https://pdai.tech/md/db/nosql-es/elasticsearch-x-usage.html#%E6%8C%87%E5%AE%9A%E5%AD%97%E6%AE%B5%E6%9F%A5%E8%AF%A2%EF%BC%9Amatch" target="_blank" rel="noreferrer">前文</a>中我们已经介绍了match查询。</p><ul><li><strong>准备一些数据</strong></li></ul><p>这里我们准备一些数据，通过实例看match 查询的步骤</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>PUT /test-dsl-match</span></span>
+<span class="line"><span>{ &quot;settings&quot;: { &quot;number_of_shards&quot;: 1 }} </span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>POST /test-dsl-match/_bulk</span></span>
+<span class="line"><span>{ &quot;index&quot;: { &quot;_id&quot;: 1 }}</span></span>
+<span class="line"><span>{ &quot;title&quot;: &quot;The quick brown fox&quot; }</span></span>
+<span class="line"><span>{ &quot;index&quot;: { &quot;_id&quot;: 2 }}</span></span>
+<span class="line"><span>{ &quot;title&quot;: &quot;The quick brown fox jumps over the lazy dog&quot; }</span></span>
+<span class="line"><span>{ &quot;index&quot;: { &quot;_id&quot;: 3 }}</span></span>
+<span class="line"><span>{ &quot;title&quot;: &quot;The quick brown fox jumps over the quick dog&quot; }</span></span>
+<span class="line"><span>{ &quot;index&quot;: { &quot;_id&quot;: 4 }}</span></span>
+<span class="line"><span>{ &quot;title&quot;: &quot;Brown fox brown dog&quot; }</span></span></code></pre></div><ul><li><strong>查询数据</strong></li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>    &quot;query&quot;: {</span></span>
+<span class="line"><span>        &quot;match&quot;: {</span></span>
+<span class="line"><span>            &quot;title&quot;: &quot;QUICK!&quot;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>Elasticsearch 执行上面这个 match 查询的步骤是：</p><ol><li><strong>检查字段类型</strong> 。</li></ol><p>标题 title 字段是一个 string 类型（ analyzed ）已分析的全文字段，这意味着查询字符串本身也应该被分析。</p><ol start="2"><li><strong>分析查询字符串</strong> 。</li></ol><p>将查询的字符串 QUICK! 传入标准分析器中，输出的结果是单个项 quick 。因为只有一个单词项，所以 match 查询执行的是单个底层 term 查询。</p><ol start="3"><li><strong>查找匹配文档</strong> 。</li></ol><p>用 term 查询在倒排索引中查找 quick 然后获取一组包含该项的文档，本例的结果是文档：1、2 和 3 。</p><ol start="4"><li><strong>为每个文档评分</strong> 。</li></ol><p>用 term 查询计算每个文档相关度评分 _score ，这是种将词频（term frequency，即词 quick 在相关文档的 title 字段中出现的频率）和反向文档频率（inverse document frequency，即词 quick 在所有文档的 title 字段中出现的频率），以及字段的长度（即字段越短相关度越高）相结合的计算方式。</p><ul><li><strong>验证结果</strong></li></ul><p><img src="`+o+`" alt=""></p><h3 id="match多个词深入" tabindex="-1">match多个词深入 <a class="header-anchor" href="#match多个词深入" aria-label="Permalink to &quot;match多个词深入&quot;">​</a></h3><p>我们在上文中复合查询中已经使用了match多个词，比如“Quick pets”； 这里我们通过例子带你更深入理解match多个词</p><ul><li><strong>match多个词的本质</strong></li></ul><p>查询多个词&quot;BROWN DOG!&quot;</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>    &quot;query&quot;: {</span></span>
+<span class="line"><span>        &quot;match&quot;: {</span></span>
+<span class="line"><span>            &quot;title&quot;: &quot;BROWN DOG&quot;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p><img src="`+c+`" alt=""></p><p>因为 match 查询必须查找两个词（ [&quot;brown&quot;,&quot;dog&quot;] ），它在内部实际上先执行两次 term 查询，然后将两次查询的结果合并作为最终结果输出。为了做到这点，它将两个 term 查询包入一个 bool 查询中，</p><p>所以上述查询的结果，和如下语句查询结果是等同的</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;bool&quot;: {</span></span>
+<span class="line"><span>      &quot;should&quot;: [</span></span>
+<span class="line"><span>        {</span></span>
+<span class="line"><span>          &quot;term&quot;: {</span></span>
+<span class="line"><span>            &quot;title&quot;: &quot;brown&quot;</span></span>
+<span class="line"><span>          }</span></span>
+<span class="line"><span>        },</span></span>
+<span class="line"><span>        {</span></span>
+<span class="line"><span>          &quot;term&quot;: {</span></span>
+<span class="line"><span>            &quot;title&quot;: &quot;dog&quot;</span></span>
+<span class="line"><span>          }</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>      ]</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p><img src="`+u+`" alt=""></p><ul><li><strong>match多个词的逻辑</strong></li></ul><p>上面等同于should（任意一个满足），是因为 match还有一个operator参数，默认是or, 所以对应的是should。</p><p>所以上述查询也等同于</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;match&quot;: {</span></span>
+<span class="line"><span>      &quot;title&quot;: {</span></span>
+<span class="line"><span>        &quot;query&quot;: &quot;BROWN DOG&quot;,</span></span>
+<span class="line"><span>        &quot;operator&quot;: &quot;or&quot;</span></span>
+<span class="line"><span>      }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>那么我们如果是需要and操作呢，即同时满足呢？</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;match&quot;: {</span></span>
+<span class="line"><span>      &quot;title&quot;: {</span></span>
+<span class="line"><span>        &quot;query&quot;: &quot;BROWN DOG&quot;,</span></span>
+<span class="line"><span>        &quot;operator&quot;: &quot;and&quot;</span></span>
+<span class="line"><span>      }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>等同于</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;bool&quot;: {</span></span>
+<span class="line"><span>      &quot;must&quot;: [</span></span>
+<span class="line"><span>        {</span></span>
+<span class="line"><span>          &quot;term&quot;: {</span></span>
+<span class="line"><span>            &quot;title&quot;: &quot;brown&quot;</span></span>
+<span class="line"><span>          }</span></span>
+<span class="line"><span>        },</span></span>
+<span class="line"><span>        {</span></span>
+<span class="line"><span>          &quot;term&quot;: {</span></span>
+<span class="line"><span>            &quot;title&quot;: &quot;dog&quot;</span></span>
+<span class="line"><span>          }</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>      ]</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p><img src="`+r+`" alt=""></p><h3 id="控制match的匹配精度" tabindex="-1">控制match的匹配精度 <a class="header-anchor" href="#控制match的匹配精度" aria-label="Permalink to &quot;控制match的匹配精度&quot;">​</a></h3><p>如果用户给定 3 个查询词，想查找至少包含其中 2 个的文档，该如何处理？将 operator 操作符参数设置成 and 或者 or 都是不合适的。</p><p>match 查询支持 minimum_should_match 最小匹配参数，这让我们可以指定必须匹配的词项数用来表示一个文档是否相关。我们可以将其设置为某个具体数字，更常用的做法是将其设置为一个百分数，因为我们无法控制用户搜索时输入的单词数量：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;match&quot;: {</span></span>
+<span class="line"><span>      &quot;title&quot;: {</span></span>
+<span class="line"><span>        &quot;query&quot;:                &quot;quick brown dog&quot;,</span></span>
+<span class="line"><span>        &quot;minimum_should_match&quot;: &quot;75%&quot;</span></span>
+<span class="line"><span>      }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>当给定百分比的时候， minimum_should_match 会做合适的事情：在之前三词项的示例中， 75% 会自动被截断成 66.6% ，即三个里面两个词。无论这个值设置成什么，至少包含一个词项的文档才会被认为是匹配的。</p><p><img src="`+q+`" alt=""></p><p>当然也等同于</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;bool&quot;: {</span></span>
+<span class="line"><span>      &quot;should&quot;: [</span></span>
+<span class="line"><span>        { &quot;match&quot;: { &quot;title&quot;: &quot;quick&quot; }},</span></span>
+<span class="line"><span>        { &quot;match&quot;: { &quot;title&quot;: &quot;brown&quot;   }},</span></span>
+<span class="line"><span>        { &quot;match&quot;: { &quot;title&quot;: &quot;dog&quot;   }}</span></span>
+<span class="line"><span>      ],</span></span>
+<span class="line"><span>      &quot;minimum_should_match&quot;: 2 </span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p><img src="`+h+`" alt=""></p><h3 id="其它match类型" tabindex="-1">其它match类型 <a class="header-anchor" href="#其它match类型" aria-label="Permalink to &quot;其它match类型&quot;">​</a></h3><ul><li><strong>match_pharse</strong></li></ul><p>match_phrase在前文中我们已经有了解，我们再看下另外一个例子。</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;match_phrase&quot;: {</span></span>
+<span class="line"><span>      &quot;title&quot;: {</span></span>
+<span class="line"><span>        &quot;query&quot;: &quot;quick brown&quot;</span></span>
+<span class="line"><span>      }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p><img src="`+d+`" alt=""></p><p>很多人对它仍然有误解的，比如如下例子：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;match_phrase&quot;: {</span></span>
+<span class="line"><span>      &quot;title&quot;: {</span></span>
+<span class="line"><span>        &quot;query&quot;: &quot;quick brown f&quot;</span></span>
+<span class="line"><span>      }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>这样的查询是查不出任何数据的，因为前文中我们知道了match本质上是对term组合，match_phrase本质是连续的term的查询，所以f并不是一个分词，不满足term查询，所以最终查不出任何内容了。</p><p><img src="`+m+`" alt=""></p><ul><li><strong>match_pharse_prefix</strong></li></ul><p>那有没有可以查询出<code>quick brown f</code>的方式呢？ELasticSearch在match_phrase基础上提供了一种可以查最后一个词项是前缀的方法，这样就可以查询<code>quick brown f</code>了</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;match_phrase_prefix&quot;: {</span></span>
+<span class="line"><span>      &quot;title&quot;: {</span></span>
+<span class="line"><span>        &quot;query&quot;: &quot;quick brown f&quot;</span></span>
+<span class="line"><span>      }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p><img src="`+g+`" alt=""></p><p>(ps: prefix的意思不是整个text的开始匹配，而是最后一个词项满足term的prefix查询而已)</p><ul><li><strong>match_bool_prefix</strong></li></ul><p>除了match_phrase_prefix，ElasticSearch还提供了match_bool_prefix查询</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;match_bool_prefix&quot;: {</span></span>
+<span class="line"><span>      &quot;title&quot;: {</span></span>
+<span class="line"><span>        &quot;query&quot;: &quot;quick brown f&quot;</span></span>
+<span class="line"><span>      }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p><img src="`+b+`" alt=""></p><p>它们两种方式有啥区别呢？match_bool_prefix本质上可以转换为：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;bool&quot; : {</span></span>
+<span class="line"><span>      &quot;should&quot;: [</span></span>
+<span class="line"><span>        { &quot;term&quot;: { &quot;title&quot;: &quot;quick&quot; }},</span></span>
+<span class="line"><span>        { &quot;term&quot;: { &quot;title&quot;: &quot;brown&quot; }},</span></span>
+<span class="line"><span>        { &quot;prefix&quot;: { &quot;title&quot;: &quot;f&quot;}}</span></span>
+<span class="line"><span>      ]</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>所以这样你就能理解，match_bool_prefix查询中的quick,brown,f是无序的。</p><ul><li><strong>multi_match</strong></li></ul><p>如果我们期望一次对多个字段查询，怎么办呢？ElasticSearch提供了multi_match查询的方式</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;multi_match&quot; : {</span></span>
+<span class="line"><span>      &quot;query&quot;:    &quot;Will Smith&quot;,</span></span>
+<span class="line"><span>      &quot;fields&quot;: [ &quot;title&quot;, &quot;*_name&quot; ] </span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p><code>*</code>表示前缀匹配字段。</p><h2 id="query-string类型" tabindex="-1">query string类型 <a class="header-anchor" href="#query-string类型" aria-label="Permalink to &quot;query string类型&quot;">​</a></h2><blockquote><p>第二类：query string 类型</p></blockquote><h3 id="query-string" tabindex="-1">query_string <a class="header-anchor" href="#query-string" aria-label="Permalink to &quot;query\\_string&quot;">​</a></h3><p>此查询使用语法根据运算符（例如AND或）来解析和拆分提供的查询字符串NOT。然后查询在返回匹配的文档之前独立分析每个拆分的文本。</p><p>可以使用该query_string查询创建一个复杂的搜索，其中包括通配符，跨多个字段的搜索等等。尽管用途广泛，但查询是严格的，如果查询字符串包含任何无效语法，则返回错误。</p><p>例如：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;query_string&quot;: {</span></span>
+<span class="line"><span>      &quot;query&quot;: &quot;(lazy dog) OR (brown dog)&quot;,</span></span>
+<span class="line"><span>      &quot;default_field&quot;: &quot;title&quot;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>这里查询结果，你需要理解本质上查询这四个分词（term）or的结果而已，所以doc 3和4也在其中</p><p><img src="`+_+`" alt=""></p><p>对构筑知识体系已经够了，但是它其实还有很多参数和用法，更多请参考<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html" target="_blank" rel="noreferrer">官网在新窗口打开</a></p><h3 id="query-string-simple" tabindex="-1">query_string_simple <a class="header-anchor" href="#query-string-simple" aria-label="Permalink to &quot;query\\_string\\_simple&quot;">​</a></h3><p>该查询使用一种简单的语法来解析提供的查询字符串并将其拆分为基于特殊运算符的术语。然后查询在返回匹配的文档之前独立分析每个术语。</p><p>尽管其语法比query_string查询更受限制 ，但<strong>simple_query_string 查询不会针对无效语法返回错误。而是，它将忽略查询字符串的任何无效部分</strong>。</p><p>举例：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;simple_query_string&quot; : {</span></span>
+<span class="line"><span>        &quot;query&quot;: &quot;\\&quot;over the\\&quot; + (lazy | quick) + dog&quot;,</span></span>
+<span class="line"><span>        &quot;fields&quot;: [&quot;title&quot;],</span></span>
+<span class="line"><span>        &quot;default_operator&quot;: &quot;and&quot;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p><img src="`+v+`" alt=""></p><p>更多请参考<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html" target="_blank" rel="noreferrer">官网在新窗口打开</a></p><h2 id="interval类型" tabindex="-1">Interval类型 <a class="header-anchor" href="#interval类型" aria-label="Permalink to &quot;Interval类型&quot;">​</a></h2><blockquote><p>第三类：interval类型</p></blockquote><p>Intervals是时间间隔的意思，本质上将多个规则按照顺序匹配。</p><p>比如：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /test-dsl-match/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;intervals&quot; : {</span></span>
+<span class="line"><span>      &quot;title&quot; : {</span></span>
+<span class="line"><span>        &quot;all_of&quot; : {</span></span>
+<span class="line"><span>          &quot;ordered&quot; : true,</span></span>
+<span class="line"><span>          &quot;intervals&quot; : [</span></span>
+<span class="line"><span>            {</span></span>
+<span class="line"><span>              &quot;match&quot; : {</span></span>
+<span class="line"><span>                &quot;query&quot; : &quot;quick&quot;,</span></span>
+<span class="line"><span>                &quot;max_gaps&quot; : 0,</span></span>
+<span class="line"><span>                &quot;ordered&quot; : true</span></span>
+<span class="line"><span>              }</span></span>
+<span class="line"><span>            },</span></span>
+<span class="line"><span>            {</span></span>
+<span class="line"><span>              &quot;any_of&quot; : {</span></span>
+<span class="line"><span>                &quot;intervals&quot; : [</span></span>
+<span class="line"><span>                  { &quot;match&quot; : { &quot;query&quot; : &quot;jump over&quot; } },</span></span>
+<span class="line"><span>                  { &quot;match&quot; : { &quot;query&quot; : &quot;quick dog&quot; } }</span></span>
+<span class="line"><span>                ]</span></span>
+<span class="line"><span>              }</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>          ]</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>      }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p><img src="`+k+'" alt=""></p><p>因为interval之间是可以组合的，所以它可以表现的很复杂。更多请参考<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-intervals-query.html" target="_blank" rel="noreferrer">官网在新窗口打开</a></p><h2 id="参考文章" tabindex="-1">参考文章 <a class="header-anchor" href="#参考文章" aria-label="Permalink to &quot;参考文章&quot;">​</a></h2><p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/full-text-queries.html#full-text-queries" target="_blank" rel="noreferrer">https://www.elastic.co/guide/en/elasticsearch/reference/current/full-text-queries.html#full-text-queries</a></p><p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/match-multi-word.html" target="_blank" rel="noreferrer">https://www.elastic.co/guide/cn/elasticsearch/guide/current/match-multi-word.html</a></p><p>本文转自 <a href="https://pdai.tech" target="_blank" rel="noreferrer">https://pdai.tech</a>，如有侵权，请联系删除。</p>',115)]))}const A=n(y,[["render",f]]);export{S as __pageData,A as default};

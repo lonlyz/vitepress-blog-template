@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Java IO - 源码: InputStream | 知识星球</title>
+    <meta name="description" content="不积硅步，无以至千里。">
+    <meta name="generator" content="VitePress v1.6.3">
+    <link rel="preload stylesheet" href="/vitepress-blog-template/assets/style.hz1UbIDt.css" as="style">
+    <link rel="preload stylesheet" href="/vitepress-blog-template/vp-icons.css" as="style">
+    <script type="module" src="/vitepress-blog-template/assets/chunks/metadata.079420e9.js"></script>
+    <script type="module" src="/vitepress-blog-template/assets/app.D1P0Vk3Q.js"></script>
+    <link rel="preload" href="/vitepress-blog-template/assets/inter-roman-latin.Di8DUHzh.woff2" as="font" type="font/woff2" crossorigin="">
+    <link rel="modulepreload" href="/vitepress-blog-template/assets/chunks/theme.FAufiNZT.js">
+    <link rel="modulepreload" href="/vitepress-blog-template/assets/chunks/framework.BrYByd3F.js">
+    <link rel="modulepreload" href="/vitepress-blog-template/assets/java_io_java-io-basic-code-inputstream.md.DN9k60VA.lean.js">
+    <link rel="icon" type="image/svg+xml" href="/vitepress-blog-template/vitepress-logo-mini.svg">
+    <link rel="icon" type="image/png" href="/vitepress-blog-template/vitepress-logo-mini.png">
+    <meta name="theme-color" content="#5f67ee">
+    <script id="check-dark-mode">(()=>{const e=localStorage.getItem("vitepress-theme-appearance")||"auto",a=window.matchMedia("(prefers-color-scheme: dark)").matches;(!e||e==="auto"?a:e==="dark")&&document.documentElement.classList.add("dark")})();</script>
+    <script id="check-mac-os">document.documentElement.classList.toggle("mac",/Mac|iPhone|iPod|iPad/i.test(navigator.platform));</script>
+  </head>
+  <body>
+    <div id="app"><div class="Layout" data-v-5d98c3a5><!--[--><!--]--><!--[--><span tabindex="-1" data-v-0b0ada53></span><a href="#VPContent" class="VPSkipLink visually-hidden" data-v-0b0ada53>Skip to content</a><!--]--><!----><header class="VPNav" data-v-5d98c3a5 data-v-ae24b3ad><div class="VPNavBar" data-v-ae24b3ad data-v-6aa21345><div class="wrapper" data-v-6aa21345><div class="container" data-v-6aa21345><div class="title" data-v-6aa21345><div class="VPNavBarTitle has-sidebar" data-v-6aa21345 data-v-1168a8e4><a class="title" href="/vitepress-blog-template/" data-v-1168a8e4><!--[--><!--]--><!--[--><img class="VPImage logo" src="/vitepress-blog-template/vitepress-logo-mini.svg" width="24" height="24" alt data-v-8426fc1a><!--]--><span data-v-1168a8e4>知识星球</span><!--[--><!--]--></a></div></div><div class="content" data-v-6aa21345><div class="content-body" data-v-6aa21345><!--[--><!--]--><div class="VPNavBarSearch search" data-v-6aa21345><!--[--><!----><div id="local-search"><button type="button" class="DocSearch DocSearch-Button" aria-label="搜索文档"><span class="DocSearch-Button-Container"><span class="vp-icon DocSearch-Search-Icon"></span><span class="DocSearch-Button-Placeholder">搜索文档</span></span><span class="DocSearch-Button-Keys"><kbd class="DocSearch-Button-Key"></kbd><kbd class="DocSearch-Button-Key">K</kbd></span></button></div><!--]--></div><nav aria-labelledby="main-nav-aria-label" class="VPNavBarMenu menu" data-v-6aa21345 data-v-dc692963><span id="main-nav-aria-label" class="visually-hidden" data-v-dc692963> Main Navigation </span><!--[--><!--[--><a class="VPLink link VPNavBarMenuLink" href="/vitepress-blog-template/interview/x-interview" tabindex="0" data-v-dc692963 data-v-e56f3d57><!--[--><span data-v-e56f3d57>面试</span><!--]--></a><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>Java</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>Java面向对象和基础</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/basic/java-basic-oop" data-v-35975db6><!--[--><span data-v-35975db6>java面向对象基础</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/basic/java-basic-lan-basic" data-v-35975db6><!--[--><span data-v-35975db6>java基础知识体系</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>Java进阶-集合框架</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/collection/java-collection-all" data-v-35975db6><!--[--><span data-v-35975db6>java集合框架详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>Java进阶-并发框架</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/thread/java-thread-x-overview" data-v-35975db6><!--[--><span data-v-35975db6>java并发知识体系</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/thread/java-thread-x-theorty" data-v-35975db6><!--[--><span data-v-35975db6>java并发理论基础</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/thread/java-thread-x-thread-basic" data-v-35975db6><!--[--><span data-v-35975db6>java线程理论基础</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-overview" data-v-35975db6><!--[--><span data-v-35975db6>java J.U.C基础</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>Java进阶-IO框架</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/io/java-io-overview" data-v-35975db6><!--[--><span data-v-35975db6>Java IO/NIO/AIO详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>java进阶-新版本特性</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/java8/java8" data-v-35975db6><!--[--><span data-v-35975db6>java 8特性</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/java8up/java-8-up-overview" data-v-35975db6><!--[--><span data-v-35975db6>java 8以上版本特性</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/java8up/java9-11" data-v-35975db6><!--[--><span data-v-35975db6>java 8升级java 11</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/java8up/java12-17" data-v-35975db6><!--[--><span data-v-35975db6>java 11升级java 17</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>java进阶-JVM</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/jvm/java-jvm-classload" data-v-35975db6><!--[--><span data-v-35975db6>java类加载机制</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/jvm/java-jvm-class" data-v-35975db6><!--[--><span data-v-35975db6>java字节码和增强技术</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/jvm/java-jvm-struct" data-v-35975db6><!--[--><span data-v-35975db6>java内存结构</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/jvm/java-jvm-gc" data-v-35975db6><!--[--><span data-v-35975db6>java垃圾回收</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/jvm/java-jvm-debug-tools-linux" data-v-35975db6><!--[--><span data-v-35975db6>java调试排错</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>开发</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>开发 - 常用开发基础</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/package/dev-package-x-overview" data-v-35975db6><!--[--><span data-v-35975db6>常用类库详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/regex/dev-regex-all" data-v-35975db6><!--[--><span data-v-35975db6>正则表达式详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/cron/dev-cron-x-usage" data-v-35975db6><!--[--><span data-v-35975db6>CRON表达式详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/protocol/dev-protocol-overview" data-v-35975db6><!--[--><span data-v-35975db6>网络协议和工具详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/security/dev-security-overview" data-v-35975db6><!--[--><span data-v-35975db6>安全相关详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>开发 - 质量保障</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/ut/dev-ut-unit-test" data-v-35975db6><!--[--><span data-v-35975db6>单元测试详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/ut/dev-qt-code-style" data-v-35975db6><!--[--><span data-v-35975db6>统一风格详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/ut/dev-qt-sonarlint" data-v-35975db6><!--[--><span data-v-35975db6>质量管理详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>开发 - 代码重构</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/refactor/dev-refactor-if-else" data-v-35975db6><!--[--><span data-v-35975db6>代码重构相关</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>spring</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>Spring Framework(v5.3)</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/spring" data-v-35975db6><!--[--><span data-v-35975db6>Spring框架知识体系</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/spring-x-framework-introduce" data-v-35975db6><!--[--><span data-v-35975db6>Spring框架组成</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/spring-x-framework-ioc" data-v-35975db6><!--[--><span data-v-35975db6>控制反转(IOC)</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/spring-x-framework-aop" data-v-35975db6><!--[--><span data-v-35975db6>面向切面编程(AOP)</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/spring-x-framework-springmvc" data-v-35975db6><!--[--><span data-v-35975db6>SpringMVC</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>SpringBoot系列(v2.5)</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot知识体系</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-hello-world" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot入门</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-interface-response" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot接口设计和实现</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-mysql-jpa" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot集成MySQL</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-mysql-shardingjdbc" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot集成ShardingJDBC</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-redis-jedis" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot集成Redis</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-postgre-jpa" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot集成Postgre</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-elastic-template" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot集成ElasticSearch</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-socket-websocket" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot集成Socket</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-task-timer" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot定时任务</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-view-thymeleaf" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot后端视图</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-monitor-actuator" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot监控</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-y-auo-config" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot进阶</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>数据库</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>数据库基础和原理</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/db/sql/sql-db" data-v-35975db6><!--[--><span data-v-35975db6>数据库原理</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/db/sql-lan/sql-lan" data-v-35975db6><!--[--><span data-v-35975db6>SQL语言</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>SQL 数据库</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/db/sql-mysql/sql-mysql-overview" data-v-35975db6><!--[--><span data-v-35975db6>MySQL 详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>NoSQL 数据库</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/db/nosql-redis/db-redis-overview" data-v-35975db6><!--[--><span data-v-35975db6>Redis 详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/db/nosql-mongo/mongo" data-v-35975db6><!--[--><span data-v-35975db6>MongoDB 详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/db/nosql-es/elasticsearch" data-v-35975db6><!--[--><span data-v-35975db6>ElasticSearch 详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>算法</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>算法基础和思想</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-basic-overview" data-v-35975db6><!--[--><span data-v-35975db6>数据结构基础</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-sort-overview" data-v-35975db6><!--[--><span data-v-35975db6>常见排序算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-core-divide-and-conquer" data-v-35975db6><!--[--><span data-v-35975db6>算法思想</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>一些领域算法</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-security-degist" data-v-35975db6><!--[--><span data-v-35975db6>安全算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-char-match" data-v-35975db6><!--[--><span data-v-35975db6>字符串匹配算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-distribute-overview" data-v-35975db6><!--[--><span data-v-35975db6>分布式系统算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-bigdata-overview" data-v-35975db6><!--[--><span data-v-35975db6>海量数据处理</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-load-balance" data-v-35975db6><!--[--><span data-v-35975db6>负载均衡算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-suggest" data-v-35975db6><!--[--><span data-v-35975db6>推荐算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-machine" data-v-35975db6><!--[--><span data-v-35975db6>数据挖掘算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-id-snowflake" data-v-35975db6><!--[--><span data-v-35975db6>ID生成算法</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>其它算法相关</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-other-mind" data-v-35975db6><!--[--><span data-v-35975db6>头脑风暴</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>框架|中间件</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>Web 容器</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/framework/tomcat/tomcat-overview" data-v-35975db6><!--[--><span data-v-35975db6>Tomcat 源码详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>ORM 框架</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-overview" data-v-35975db6><!--[--><span data-v-35975db6>MyBatis 源码详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>分表分库框架</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/framework/ds-sharding/sharding-overview" data-v-35975db6><!--[--><span data-v-35975db6>ShardingSphere 详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>消息队列框架</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/framework/kafka/kafka" data-v-35975db6><!--[--><span data-v-35975db6>kafka 详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>架构</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>架构基础和技术点</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-x-overview" data-v-35975db6><!--[--><span data-v-35975db6>架构知识体系</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-x-view" data-v-35975db6><!--[--><span data-v-35975db6>从角色视角看架构</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-x-view-2" data-v-35975db6><!--[--><span data-v-35975db6>从分层视角看架构</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-x-evolution" data-v-35975db6><!--[--><span data-v-35975db6>从演化视角看架构</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-x-pattern" data-v-35975db6><!--[--><span data-v-35975db6>从模式视角看架构</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-y-cache" data-v-35975db6><!--[--><span data-v-35975db6>高并发之缓存</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-y-ratelimit" data-v-35975db6><!--[--><span data-v-35975db6>高并发之限流</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-y-reduce" data-v-35975db6><!--[--><span data-v-35975db6>高并发之降级和熔断</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-y-loadbalance" data-v-35975db6><!--[--><span data-v-35975db6>高可用之负载均衡</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-y-backup" data-v-35975db6><!--[--><span data-v-35975db6>高可用之容灾备份</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>分布式系统</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/distribute/arch-z-theory" data-v-35975db6><!--[--><span data-v-35975db6>分布式理论和一致性算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/distribute/arch-z-id" data-v-35975db6><!--[--><span data-v-35975db6>全局唯一ID实现方案</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/distribute/arch-z-lock" data-v-35975db6><!--[--><span data-v-35975db6>分布式锁及实现方案</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/distribute/arch-z-transection" data-v-35975db6><!--[--><span data-v-35975db6>分布式事务及实现方案</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/distribute/arch-z-job" data-v-35975db6><!--[--><span data-v-35975db6>分布式任务及实现方案</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/distribute/arch-z-session" data-v-35975db6><!--[--><span data-v-35975db6>分布式会话及实现方案</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>微服务系统</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/microservice/arch-m-singleton-2" data-v-35975db6><!--[--><span data-v-35975db6>微服务系统和设计</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>系统设计之商业业务平台</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/business/arch-example-seckill" data-v-35975db6><!--[--><span data-v-35975db6>秒杀抽奖相关设计</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/business/arch-example-goods-detail" data-v-35975db6><!--[--><span data-v-35975db6>电商交易相关设计</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/business/arch-example-meituan-jishiwuliu" data-v-35975db6><!--[--><span data-v-35975db6>仓储物流相关设计</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/business/arch-example-xianyu-laxintoufang" data-v-35975db6><!--[--><span data-v-35975db6>拉新投放相关设计</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/business/arch-example-meituan-waimai" data-v-35975db6><!--[--><span data-v-35975db6>其它综合相关设计</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>系统设计之数据仓库平台</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/datahouse/arch-example-meituan-db-hp" data-v-35975db6><!--[--><span data-v-35975db6>数据库架构相关设计</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/datahouse/arch-example-meituan-db-binlog" data-v-35975db6><!--[--><span data-v-35975db6>数据同步相关设计</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/datahouse/arch-example-meituan-data-cangchu" data-v-35975db6><!--[--><span data-v-35975db6>数据仓库相关设计</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/datahouse/arch-example-meituan-data-zhili" data-v-35975db6><!--[--><span data-v-35975db6>数据治理相关设计</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>工具|部署</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuLink" data-v-b98bc113 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/tool/tool-list-overview" data-v-35975db6><!--[--><span data-v-35975db6> 工具清单  </span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-b98bc113 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/tool/tool-git" data-v-35975db6><!--[--><span data-v-35975db6> 开发工具详解  </span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-b98bc113 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/tool/linux" data-v-35975db6><!--[--><span data-v-35975db6> Linux  </span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-b98bc113 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/tool/docker-00-overview" data-v-35975db6><!--[--><span data-v-35975db6> 容器化 - Docker  </span><!--]--></a></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--]--></nav><!----><div class="VPNavBarAppearance appearance" data-v-6aa21345 data-v-6c893767><button class="VPSwitch VPSwitchAppearance" type="button" role="switch" title aria-checked="false" data-v-6c893767 data-v-5337faa4 data-v-1d5665e3><span class="check" data-v-1d5665e3><span class="icon" data-v-1d5665e3><!--[--><span class="vpi-sun sun" data-v-5337faa4></span><span class="vpi-moon moon" data-v-5337faa4></span><!--]--></span></span></button></div><div class="VPSocialLinks VPNavBarSocialLinks social-links" data-v-6aa21345 data-v-0394ad82 data-v-7bc22406><!--[--><a class="VPSocialLink no-icon" href="https://github.com/vuejs/vitepress" aria-label="github" target="_blank" rel="noopener" data-v-7bc22406 data-v-bd121fe5><span class="vpi-social-github"></span></a><!--]--></div><div class="VPFlyout VPNavBarExtra extra" data-v-6aa21345 data-v-bb2aa2f0 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" aria-label="extra navigation" data-v-cf11d7a2><span class="vpi-more-horizontal icon" data-v-cf11d7a2></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><!----><!--[--><!--[--><!----><div class="group" data-v-bb2aa2f0><div class="item appearance" data-v-bb2aa2f0><p class="label" data-v-bb2aa2f0>主题</p><div class="appearance-action" data-v-bb2aa2f0><button class="VPSwitch VPSwitchAppearance" type="button" role="switch" title aria-checked="false" data-v-bb2aa2f0 data-v-5337faa4 data-v-1d5665e3><span class="check" data-v-1d5665e3><span class="icon" data-v-1d5665e3><!--[--><span class="vpi-sun sun" data-v-5337faa4></span><span class="vpi-moon moon" data-v-5337faa4></span><!--]--></span></span></button></div></div></div><div class="group" data-v-bb2aa2f0><div class="item social-links" data-v-bb2aa2f0><div class="VPSocialLinks social-links-list" data-v-bb2aa2f0 data-v-7bc22406><!--[--><a class="VPSocialLink no-icon" href="https://github.com/vuejs/vitepress" aria-label="github" target="_blank" rel="noopener" data-v-7bc22406 data-v-bd121fe5><span class="vpi-social-github"></span></a><!--]--></div></div></div><!--]--><!--]--></div></div></div><!--[--><!--]--><button type="button" class="VPNavBarHamburger hamburger" aria-label="mobile navigation" aria-expanded="false" aria-controls="VPNavScreen" data-v-6aa21345 data-v-e5dd9c1c><span class="container" data-v-e5dd9c1c><span class="top" data-v-e5dd9c1c></span><span class="middle" data-v-e5dd9c1c></span><span class="bottom" data-v-e5dd9c1c></span></span></button></div></div></div></div><div class="divider" data-v-6aa21345><div class="divider-line" data-v-6aa21345></div></div></div><!----></header><div class="VPLocalNav has-sidebar empty" data-v-5d98c3a5 data-v-a6f0e41e><div class="container" data-v-a6f0e41e><button class="menu" aria-expanded="false" aria-controls="VPSidebarNav" data-v-a6f0e41e><span class="vpi-align-left menu-icon" data-v-a6f0e41e></span><span class="menu-text" data-v-a6f0e41e>菜单</span></button><div class="VPLocalNavOutlineDropdown" style="--vp-vh:0px;" data-v-a6f0e41e data-v-8a42e2b4><button data-v-8a42e2b4>回到顶部</button><!----></div></div></div><aside class="VPSidebar" data-v-5d98c3a5 data-v-319d5ca6><div class="curtain" data-v-319d5ca6></div><nav class="nav" id="VPSidebarNav" aria-labelledby="sidebar-aria-label" tabindex="-1" data-v-319d5ca6><span class="visually-hidden" id="sidebar-aria-label" data-v-319d5ca6> Sidebar Navigation </span><!--[--><!--]--><!--[--><div class="no-transition group" data-v-c40bc020><section class="VPSidebarItem level-0" data-v-c40bc020 data-v-b3fd67f8><!----><div class="items" data-v-b3fd67f8><!--[--><section class="VPSidebarItem level-1 collapsible" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" role="button" tabindex="0" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><h3 class="text" data-v-b3fd67f8>Java 基础 </h3><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-b3fd67f8><span class="vpi-chevron-right caret-icon" data-v-b3fd67f8></span></div></div><div class="items" data-v-b3fd67f8><!--[--><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/basic/java-basic-oop" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 基础 - 面向对象 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/basic/java-basic-lan-basic" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 基础 - 知识点 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/basic/java-basic-lan-sum" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 基础 - 图谱 & Q/A </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/basic/java-basic-x-generic" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 基础 - 泛型机制详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/basic/java-basic-x-annotation" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 基础 - 注解机制详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/basic/java-basic-x-exception" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 基础 - 异常机制详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/basic/java-basic-x-reflection" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 基础 - 反射机制详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/basic/java-advanced-spi" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java常用机制 - SPI机制详解 </p><!--]--></a><!----></div><!----></div><!--]--></div></section><!--]--></div></section></div><div class="no-transition group" data-v-c40bc020><section class="VPSidebarItem level-0" data-v-c40bc020 data-v-b3fd67f8><!----><div class="items" data-v-b3fd67f8><!--[--><section class="VPSidebarItem level-1 collapsible" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" role="button" tabindex="0" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><h3 class="text" data-v-b3fd67f8>Java 集合框架 </h3><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-b3fd67f8><span class="vpi-chevron-right caret-icon" data-v-b3fd67f8></span></div></div><div class="items" data-v-b3fd67f8><!--[--><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/collection/java-collection-all" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Collection 类关系图 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/collection/java-collection-ArrayList" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Collection - ArrayList 源码解析 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/collection/java-collection-LinkedList" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Collection - LinkedList源码解析 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/collection/java-collection-Queue&amp;Stack" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Collection - Stack & Queue 源码解析 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/collection/java-collection-PriorityQueue" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Collection - PriorityQueue源码解析 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/collection/java-map-HashMap&amp;HashSet" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Map - HashSet & HashMap 源码解析 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/collection/java-map-LinkedHashMap&amp;LinkedHashSet" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Map - LinkedHashSet&Map源码解析 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/collection/java-map-TreeMap&amp;TreeSet" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Map - TreeSet & TreeMap 源码解析 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/collection/java-map-WeakHashMap" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Map - WeakHashMap源码解析 </p><!--]--></a><!----></div><!----></div><!--]--></div></section><!--]--></div></section></div><div class="no-transition group" data-v-c40bc020><section class="VPSidebarItem level-0" data-v-c40bc020 data-v-b3fd67f8><!----><div class="items" data-v-b3fd67f8><!--[--><section class="VPSidebarItem level-1 collapsible" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" role="button" tabindex="0" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><h3 class="text" data-v-b3fd67f8>Java 多线程与并发 </h3><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-b3fd67f8><span class="vpi-chevron-right caret-icon" data-v-b3fd67f8></span></div></div><div class="items" data-v-b3fd67f8><!--[--><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-overview" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ♥Java并发知识体系详解♥ </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-theorty" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 并发 - 理论基础 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-thread-basic" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 并发 - 线程基础 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-lock-all" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java并发 - Java中所有的锁 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-key-synchronized" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> 关键字: synchronized详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-key-volatile" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> 关键字: volatile详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-key-final" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> 关键字: final详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-overview" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC - 类汇总和学习指南 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-AtomicInteger" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC原子类: CAS, Unsafe和原子类详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-lock-LockSupport" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC锁: LockSupport详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-lock-AbstractQueuedSynchronizer" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC锁: 锁核心类AQS详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-lock-ReentrantLock" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC锁: ReentrantLock详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-lock-ReentrantReadWriteLock" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC锁: ReentrantReadWriteLock详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-collection-ConcurrentHashMap" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC集合: ConcurrentHashMap详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-collection-CopyOnWriteArrayList" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC集合: CopyOnWriteArrayList详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-collection-ConcurrentLinkedQueue" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC集合: ConcurrentLinkedQueue详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-collection-BlockingQueue" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC集合: BlockingQueue详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-executor-FutureTask" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC线程池: FutureTask详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-executor-ThreadPoolExecutor" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC线程池: ThreadPoolExecutor详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-executor-ScheduledThreadPoolExecutor" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC线程池: ScheduledThreadPoolExecutor详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-executor-ForkJoinPool" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC线程池: Fork/Join框架详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-tool-countdownlatch" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC工具类: CountDownLatch详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-tool-cyclicbarrier" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC工具类: CyclicBarrier详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-tool-semaphore" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC工具类: Semaphore详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-tool-phaser" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC工具类: Phaser详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-tool-exchanger" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JUC工具类: Exchanger详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/thread/java-thread-x-threadlocal" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 并发 - ThreadLocal详解 </p><!--]--></a><!----></div><!----></div><!--]--></div></section><!--]--></div></section></div><div class="no-transition group" data-v-c40bc020><section class="VPSidebarItem level-0 has-active" data-v-c40bc020 data-v-b3fd67f8><!----><div class="items" data-v-b3fd67f8><!--[--><section class="VPSidebarItem level-1 collapsible has-active" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" role="button" tabindex="0" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><h3 class="text" data-v-b3fd67f8>Java IO/NIO/AIO </h3><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-b3fd67f8><span class="vpi-chevron-right caret-icon" data-v-b3fd67f8></span></div></div><div class="items" data-v-b3fd67f8><!--[--><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/io/java-io-overview" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ♥Java IO知识体系详解♥ </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/io/java-io-basic-category" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java IO - 分类(传输，操作) </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/io/java-io-basic-design-pattern" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java IO - 设计模式(装饰者模式) </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/io/java-io-basic-code-inputstream" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java IO - 源码: InputStream </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/io/java-io-basic-code-outputstream" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java IO - 源码: OutputStream </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/io/java-io-basic-usage" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java IO - 常见类使用 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/io/java-io-model" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> IO 模型 - Unix IO 模型 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/io/java-io-bio" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java IO - BIO 详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/io/java-io-nio" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java NIO - 基础详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/io/java-io-nio-select-epoll" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java NIO - IO多路复用详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/io/java-io-aio" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java AIO - 异步IO详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/io/java-io-nio-netty" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java N(A)IO - 框架: Netty </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/io/java-io-nio-zerocopy" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java NIO - 零拷贝实现 </p><!--]--></a><!----></div><!----></div><!--]--></div></section><!--]--></div></section></div><div class="no-transition group" data-v-c40bc020><section class="VPSidebarItem level-0" data-v-c40bc020 data-v-b3fd67f8><!----><div class="items" data-v-b3fd67f8><!--[--><section class="VPSidebarItem level-1 collapsible" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" role="button" tabindex="0" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><h3 class="text" data-v-b3fd67f8>Java8 特性详解 </h3><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-b3fd67f8><span class="vpi-chevron-right caret-icon" data-v-b3fd67f8></span></div></div><div class="items" data-v-b3fd67f8><!--[--><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8/java8" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ♥Java8特性知识体系详解♥ </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8/java8-stream" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 8 - 函数编程(lambda表达式) </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8/java8-optional" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 8 - Optional类深度解析 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8/java8-default" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 8 - 默认方法 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8/java8-type-anno" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 8 - 类型注解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8/java8-anno-repeat" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 8 - 重复注解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8/java8-type" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 8 - 类型推断优化 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8/java8-jre" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 8 - JRE精简 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8/java8-permgen" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 8 - 移除Permgen </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8/java8-stampedlock" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 8 - StampedLock </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8/java8-localdatetime" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 8 - LocalDate/LocalDateTime </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8/java8-javafx" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 8 - JavaFx 2.0 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8/java8-others" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 8 - 其它更新: 字符串，base64,... </p><!--]--></a><!----></div><!----></div><!--]--></div></section><!--]--></div></section></div><div class="no-transition group" data-v-c40bc020><section class="VPSidebarItem level-0" data-v-c40bc020 data-v-b3fd67f8><!----><div class="items" data-v-b3fd67f8><!--[--><section class="VPSidebarItem level-1 collapsible" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" role="button" tabindex="0" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><h3 class="text" data-v-b3fd67f8>Java8 以上特性概述 </h3><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-b3fd67f8><span class="vpi-chevron-right caret-icon" data-v-b3fd67f8></span></div></div><div class="items" data-v-b3fd67f8><!--[--><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8up/java-8-up-overview" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ♥Java8+特性知识体系详解♥ </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8up/java9-11" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 8 升Java 11 重要特性必读 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8up/java12-17" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 11 升Java 17 重要特性必读 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8up/java9" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 9 新特性概述 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8up/java10" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 10 新特性概述 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8up/java11" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 11 新特性概述 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8up/java12" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 12 新特性概述 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8up/java13" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 13 新特性概述 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8up/java14" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 14 新特性概述 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8up/java15" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 15 新特性概述 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8up/java16" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 16 新特性概述 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/java8up/java17" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Java 17 新特性概述 </p><!--]--></a><!----></div><!----></div><!--]--></div></section><!--]--></div></section></div><div class="no-transition group" data-v-c40bc020><section class="VPSidebarItem level-0" data-v-c40bc020 data-v-b3fd67f8><!----><div class="items" data-v-b3fd67f8><!--[--><section class="VPSidebarItem level-1 collapsible" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" role="button" tabindex="0" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><h3 class="text" data-v-b3fd67f8>JVM相关 </h3><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-b3fd67f8><span class="vpi-chevron-right caret-icon" data-v-b3fd67f8></span></div></div><div class="items" data-v-b3fd67f8><!--[--><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-x-overview" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ♥JVM相关知识体系详解♥ </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-class" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JVM 基础 - 类字节码详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-class-enhancer" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JVM 基础 - 字节码的增强技术 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-classload" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JVM 基础 - Java 类加载机制 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-struct" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JVM 基础 - JVM 内存结构 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-x-introduce" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JVM 基础 - Java 内存模型引入 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-jmm" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> JVM 基础 - Java 内存模型详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-gc" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> GC - Java 垃圾回收基础知识 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-gc-g1" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> GC - Java 垃圾回收器之G1详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-gc-zgc" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> GC - Java 垃圾回收器之ZGC详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-cms-gc" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> GC - Java 垃圾回收器之CMS GC问题分析与解决 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-param" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> 调试排错 - JVM 调优参数 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-oom" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> 调试排错 - Java 内存分析之堆内存和MetaSpace内存 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-oom-offheap" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> 调试排错 - Java 内存分析之堆外内存 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-thread-dump" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> 调试排错 - Java 线程分析之线程Dump分析 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-debug-tools-linux" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> 调试排错 - Java 问题排查之Linux命令 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-debug-tools-list" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> 调试排错 - Java 问题排查之工具单 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-oom-tool" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> 调试排错 - Java 问题排查之JVM可视化工具 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-agent-arthas" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> 调试排错 - Java 问题排查之应用在线调试Arthas </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-debug-idea" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> 调试排错 - Java 问题排查之使用IDEA本地调试和远程调试 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/jvm/java-jvm-agent-usage" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> 调试排错 - Java动态调试技术原理 </p><!--]--></a><!----></div><!----></div><!--]--></div></section><!--]--></div></section></div><div class="no-transition group" data-v-c40bc020><section class="VPSidebarItem level-0" data-v-c40bc020 data-v-b3fd67f8><!----><div class="items" data-v-b3fd67f8><!--[--><section class="VPSidebarItem level-1 collapsible" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" role="button" tabindex="0" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><h3 class="text" data-v-b3fd67f8>Java其它相关 </h3><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-b3fd67f8><span class="vpi-chevron-right caret-icon" data-v-b3fd67f8></span></div></div><div class="items" data-v-b3fd67f8><!--[--><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/others/java-others-awesome-java" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Awesome Java </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/java/others/java-others-better-java" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Better Java </p><!--]--></a><!----></div><!----></div><!--]--></div></section><!--]--></div></section></div><!--]--><!--[--><!--]--></nav></aside><div class="VPContent has-sidebar" id="VPContent" data-v-5d98c3a5 data-v-1428d186><div class="VPDoc has-sidebar has-aside" data-v-1428d186 data-v-39a288b8><!--[--><!--]--><div class="container" data-v-39a288b8><div class="aside" data-v-39a288b8><div class="aside-curtain" data-v-39a288b8></div><div class="aside-container" data-v-39a288b8><div class="aside-content" data-v-39a288b8><div class="VPDocAside" data-v-39a288b8 data-v-3f215769><!--[--><!--]--><!--[--><!--]--><nav aria-labelledby="doc-outline-aria-label" class="VPDocAsideOutline" data-v-3f215769 data-v-a5bbad30><div class="content" data-v-a5bbad30><div class="outline-marker" data-v-a5bbad30></div><div aria-level="2" class="outline-title" id="doc-outline-aria-label" role="heading" data-v-a5bbad30>目录</div><ul class="VPDocOutlineItem root" data-v-a5bbad30 data-v-b933a997><!--[--><!--]--></ul></div></nav><!--[--><!--]--><div class="spacer" data-v-3f215769></div><!--[--><!--]--><!----><!--[--><!--]--><!--[--><!--]--></div></div></div></div><div class="content" data-v-39a288b8><div class="content-container" data-v-39a288b8><!--[--><!--]--><main class="main" data-v-39a288b8><div style="position:relative;" class="vp-doc _vitepress-blog-template_java_io_java-io-basic-code-inputstream" data-v-39a288b8><div><h1 id="java-io-源码-inputstream" tabindex="-1">Java IO - 源码: InputStream <a class="header-anchor" href="#java-io-源码-inputstream" aria-label="Permalink to &quot;Java IO - 源码: InputStream&quot;">​</a></h1><blockquote><p>本文主要从<strong>JDK 11 源码</strong>角度分析InputStream。 @pdai</p></blockquote><h2 id="inputstream-类实现关系" tabindex="-1">InputStream 类实现关系 <a class="header-anchor" href="#inputstream-类实现关系" aria-label="Permalink to &quot;InputStream 类实现关系&quot;">​</a></h2><blockquote><p>InputStream是输入字节流，具体的实现类层次结构如下：</p></blockquote><p><img src="/vitepress-blog-template/images/io/io-inputstream-1.png" alt="error.图片加载失败"></p><h2 id="inputstream-抽象类" tabindex="-1">InputStream 抽象类 <a class="header-anchor" href="#inputstream-抽象类" aria-label="Permalink to &quot;InputStream 抽象类&quot;">​</a></h2><p>InputStream 类重要方法设计如下：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>// 读取下一个字节，如果没有则返回-1</span></span>
+<span class="line"><span>public abstract int read() </span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>// 将读取到的数据放在 byte 数组中，该方法实际上调用read(byte b[], int off, int len)方法</span></span>
+<span class="line"><span>public int read(byte b[]) </span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>// 从第 off 位置读取&lt;b&gt;最多(实际可能小于)&lt;/b&gt; len 长度字节的数据放到 byte 数组中，流是以 -1 来判断是否读取结束的; 此方法会一直阻止，直到输入数据可用、检测到stream结尾或引发异常为止。</span></span>
+<span class="line"><span>public int read(byte b[], int off, int len) </span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>// JDK9新增：读取 InputStream 中的所有剩余字节，调用readNBytes(Integer.MAX_VALUE)方法</span></span>
+<span class="line"><span>public byte[] readAllBytes()</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>// JDK11更新：读取 InputStream 中的剩余字节的指定上限大小的字节内容；此方法会一直阻塞，直到读取了请求的字节数、检测到流结束或引发异常为止。此方法不会关闭输入流。</span></span>
+<span class="line"><span>public byte[] readNBytes(int len)</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>// JDK9新增：从输入流读取请求的字节数并保存在byte数组中； 此方法会一直阻塞，直到读取了请求的字节数、检测到流结束或引发异常为止。此方法不会关闭输入流。</span></span>
+<span class="line"><span>public int readNBytes(byte[] b, int off, int len)</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>// 跳过指定个数的字节不读取</span></span>
+<span class="line"><span>public long skip(long n) </span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>// 返回可读的字节数量</span></span>
+<span class="line"><span>public int available() </span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>// 读取完，关闭流，释放资源</span></span>
+<span class="line"><span>public void close() </span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>// 标记读取位置，下次还可以从这里开始读取，使用前要看当前流是否支持，可以使用 markSupport() 方法判断</span></span>
+<span class="line"><span>public synchronized void mark(int readlimit) </span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>// 重置读取位置为上次 mark 标记的位置</span></span>
+<span class="line"><span>public synchronized void reset() </span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>// 判断当前流是否支持标记流，和上面两个方法配套使用</span></span>
+<span class="line"><span>public boolean markSupported() </span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>// JDK9新增：读取 InputStream 中的全部字节并写入到指定的 OutputStream 中</span></span>
+<span class="line"><span>public long transferTo(OutputStream out)</span></span></code></pre></div><h2 id="源码实现" tabindex="-1">源码实现 <a class="header-anchor" href="#源码实现" aria-label="Permalink to &quot;源码实现&quot;">​</a></h2><blockquote><p>梳理部分InputStream及其实现类的源码分析。</p></blockquote><h3 id="inputstream" tabindex="-1">InputStream <a class="header-anchor" href="#inputstream" aria-label="Permalink to &quot;InputStream&quot;">​</a></h3><p>InputStream抽象类源码如下：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>public abstract class InputStream implements Closeable {</span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>    // 当使用skip方法时，最大的buffer size大小</span></span>
+<span class="line"><span>    private static final int MAX_SKIP_BUFFER_SIZE = 2048;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 默认的buffer size</span></span>
+<span class="line"><span>    private static final int DEFAULT_BUFFER_SIZE = 8192;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // JDK11中增加了一个nullInputStream，即空模式实现，以便可以直接调用而不用判空（可以看如下的补充说明）</span></span>
+<span class="line"><span>    public static InputStream nullInputStream() {</span></span>
+<span class="line"><span>        return new InputStream() {</span></span>
+<span class="line"><span>            private volatile boolean closed;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>            private void ensureOpen() throws IOException {</span></span>
+<span class="line"><span>                if (closed) {</span></span>
+<span class="line"><span>                    throw new IOException(&quot;Stream closed&quot;);</span></span>
+<span class="line"><span>                }</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>            @Override</span></span>
+<span class="line"><span>            public int available () throws IOException {</span></span>
+<span class="line"><span>                ensureOpen();</span></span>
+<span class="line"><span>                return 0;</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>            @Override</span></span>
+<span class="line"><span>            public int read() throws IOException {</span></span>
+<span class="line"><span>                ensureOpen();</span></span>
+<span class="line"><span>                return -1;</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>            @Override</span></span>
+<span class="line"><span>            public int read(byte[] b, int off, int len) throws IOException {</span></span>
+<span class="line"><span>                Objects.checkFromIndexSize(off, len, b.length);</span></span>
+<span class="line"><span>                if (len == 0) {</span></span>
+<span class="line"><span>                    return 0;</span></span>
+<span class="line"><span>                }</span></span>
+<span class="line"><span>                ensureOpen();</span></span>
+<span class="line"><span>                return -1;</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>            @Override</span></span>
+<span class="line"><span>            public byte[] readAllBytes() throws IOException {</span></span>
+<span class="line"><span>                ensureOpen();</span></span>
+<span class="line"><span>                return new byte[0];</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>            @Override</span></span>
+<span class="line"><span>            public int readNBytes(byte[] b, int off, int len)</span></span>
+<span class="line"><span>                throws IOException {</span></span>
+<span class="line"><span>                Objects.checkFromIndexSize(off, len, b.length);</span></span>
+<span class="line"><span>                ensureOpen();</span></span>
+<span class="line"><span>                return 0;</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>            @Override</span></span>
+<span class="line"><span>            public byte[] readNBytes(int len) throws IOException {</span></span>
+<span class="line"><span>                if (len &lt; 0) {</span></span>
+<span class="line"><span>                    throw new IllegalArgumentException(&quot;len &lt; 0&quot;);</span></span>
+<span class="line"><span>                }</span></span>
+<span class="line"><span>                ensureOpen();</span></span>
+<span class="line"><span>                return new byte[0];</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>            @Override</span></span>
+<span class="line"><span>            public long skip(long n) throws IOException {</span></span>
+<span class="line"><span>                ensureOpen();</span></span>
+<span class="line"><span>                return 0L;</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>            @Override</span></span>
+<span class="line"><span>            public long transferTo(OutputStream out) throws IOException {</span></span>
+<span class="line"><span>                Objects.requireNonNull(out);</span></span>
+<span class="line"><span>                ensureOpen();</span></span>
+<span class="line"><span>                return 0L;</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>            @Override</span></span>
+<span class="line"><span>            public void close() throws IOException {</span></span>
+<span class="line"><span>                closed = true;</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>        };</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>    // 读取下一个字节的数据，如果没有则返回-1</span></span>
+<span class="line"><span>    public abstract int read() throws IOException;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 将读取到的数据放在 byte 数组中，该方法实际上调用read(byte b[], int off, int len)方法</span></span>
+<span class="line"><span>    public int read(byte b[]) throws IOException {</span></span>
+<span class="line"><span>        return read(b, 0, b.length);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 从第 off 位置读取&lt;b&gt;最多(实际可能小于)&lt;/b&gt; len 长度字节的数据放到 byte 数组中，流是以 -1 来判断是否读取结束的; 此方法会一直阻止，直到输入数据可用、检测到stream结尾或引发异常为止。</span></span>
+<span class="line"><span>    public int read(byte b[], int off, int len) throws IOException {</span></span>
+<span class="line"><span>        // 检查边界</span></span>
+<span class="line"><span>        Objects.checkFromIndexSize(off, len, b.length);</span></span>
+<span class="line"><span>        if (len == 0) {</span></span>
+<span class="line"><span>            return 0;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        // 读取下一个字节</span></span>
+<span class="line"><span>        int c = read();</span></span>
+<span class="line"><span>        if (c == -1) { // 读到stream末尾，则返回读取的字节数量为-1</span></span>
+<span class="line"><span>            return -1;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>        b[off] = (byte)c;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        // i用来记录取了多少个字节</span></span>
+<span class="line"><span>        int i = 1;</span></span>
+<span class="line"><span>        try {</span></span>
+<span class="line"><span>            // 循环读取</span></span>
+<span class="line"><span>            for (; i &lt; len ; i++) {</span></span>
+<span class="line"><span>                c = read();</span></span>
+<span class="line"><span>                if (c == -1) {// 读到stream末尾，则break</span></span>
+<span class="line"><span>                    break;</span></span>
+<span class="line"><span>                }</span></span>
+<span class="line"><span>                b[off + i] = (byte)c;</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>        } catch (IOException ee) {</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>        // 返回读取到的字节个数</span></span>
+<span class="line"><span>        return i;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 分配的最大数组大小。</span></span>
+<span class="line"><span>    // 由于一些VM在数组中保留一些头字，所以尝试分配较大的阵列可能会导致OutOfMemoryError（请求的阵列大小超过VM限制）</span></span>
+<span class="line"><span>    private static final int MAX_BUFFER_SIZE = Integer.MAX_VALUE - 8;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // JDK9新增：读取 InputStream 中的所有剩余字节，调用readNBytes(Integer.MAX_VALUE)方法</span></span>
+<span class="line"><span>    public byte[] readAllBytes() throws IOException {</span></span>
+<span class="line"><span>        return readNBytes(Integer.MAX_VALUE);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // JDK11更新：读取 InputStream 中的剩余字节的指定上限大小的字节内容；此方法会一直阻塞，直到读取了请求的字节数、检测到流结束或引发异常为止。此方法不会关闭输入流。</span></span>
+<span class="line"><span>    public byte[] readNBytes(int len) throws IOException {</span></span>
+<span class="line"><span>        // 边界检查</span></span>
+<span class="line"><span>        if (len &lt; 0) {</span></span>
+<span class="line"><span>            throw new IllegalArgumentException(&quot;len &lt; 0&quot;);</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        List&lt;byte[]&gt; bufs = null; // 缓存每次读取到的内容放到bufs，最后组装成result</span></span>
+<span class="line"><span>        byte[] result = null; // 最后读取到的内容</span></span>
+<span class="line"><span>        int total = 0;</span></span>
+<span class="line"><span>        int remaining = len; // 剩余字节长度</span></span>
+<span class="line"><span>        int n;</span></span>
+<span class="line"><span>        do {</span></span>
+<span class="line"><span>            byte[] buf = new byte[Math.min(remaining, DEFAULT_BUFFER_SIZE)];</span></span>
+<span class="line"><span>            int nread = 0;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>            // 读取到结束为止，读取大小n可能大于或小于缓冲区大小</span></span>
+<span class="line"><span>            while ((n = read(buf, nread,</span></span>
+<span class="line"><span>                    Math.min(buf.length - nread, remaining))) &gt; 0) {</span></span>
+<span class="line"><span>                nread += n; </span></span>
+<span class="line"><span>                remaining -= n;</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>            if (nread &gt; 0) {</span></span>
+<span class="line"><span>                if (MAX_BUFFER_SIZE - total &lt; nread) {</span></span>
+<span class="line"><span>                    throw new OutOfMemoryError(&quot;Required array size too large&quot;);</span></span>
+<span class="line"><span>                }</span></span>
+<span class="line"><span>                total += nread;</span></span>
+<span class="line"><span>                if (result == null) {</span></span>
+<span class="line"><span>                    result = buf;</span></span>
+<span class="line"><span>                } else {</span></span>
+<span class="line"><span>                    if (bufs == null) {</span></span>
+<span class="line"><span>                        bufs = new ArrayList&lt;&gt;();</span></span>
+<span class="line"><span>                        bufs.add(result);</span></span>
+<span class="line"><span>                    }</span></span>
+<span class="line"><span>                    bufs.add(buf);</span></span>
+<span class="line"><span>                }</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>            // 如果读不到内容（返回-1）或者没有剩余的字节，则跳出循环</span></span>
+<span class="line"><span>        } while (n &gt;= 0 &amp;&amp; remaining &gt; 0);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        if (bufs == null) {</span></span>
+<span class="line"><span>            if (result == null) {</span></span>
+<span class="line"><span>                return new byte[0];</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>            return result.length == total ?</span></span>
+<span class="line"><span>                result : Arrays.copyOf(result, total);</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        // 组装最后的result</span></span>
+<span class="line"><span>        result = new byte[total];</span></span>
+<span class="line"><span>        int offset = 0;</span></span>
+<span class="line"><span>        remaining = total;</span></span>
+<span class="line"><span>        for (byte[] b : bufs) {</span></span>
+<span class="line"><span>            int count = Math.min(b.length, remaining);</span></span>
+<span class="line"><span>            System.arraycopy(b, 0, result, offset, count);</span></span>
+<span class="line"><span>            offset += count;</span></span>
+<span class="line"><span>            remaining -= count;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        return result;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // JDK9新增：从输入流读取请求的字节数并保存在byte数组中； 此方法会一直阻塞，直到读取了请求的字节数、检测到流结束或引发异常为止。此方法不会关闭输入流。</span></span>
+<span class="line"><span>    public int readNBytes(byte[] b, int off, int len) throws IOException {</span></span>
+<span class="line"><span>        Objects.checkFromIndexSize(off, len, b.length);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        int n = 0;</span></span>
+<span class="line"><span>        while (n &lt; len) {</span></span>
+<span class="line"><span>            int count = read(b, off + n, len - n);</span></span>
+<span class="line"><span>            if (count &lt; 0)</span></span>
+<span class="line"><span>                break;</span></span>
+<span class="line"><span>            n += count;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>        return n;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 跳过指定个数的字节不读取</span></span>
+<span class="line"><span>    public long skip(long n) throws IOException {</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        long remaining = n;</span></span>
+<span class="line"><span>        int nr;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        if (n &lt;= 0) {</span></span>
+<span class="line"><span>            return 0;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        int size = (int)Math.min(MAX_SKIP_BUFFER_SIZE, remaining);</span></span>
+<span class="line"><span>        byte[] skipBuffer = new byte[size];</span></span>
+<span class="line"><span>        while (remaining &gt; 0) {</span></span>
+<span class="line"><span>            nr = read(skipBuffer, 0, (int)Math.min(size, remaining));</span></span>
+<span class="line"><span>            if (nr &lt; 0) {</span></span>
+<span class="line"><span>                break;</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>            remaining -= nr;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        return n - remaining;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 返回可读的字节数量</span></span>
+<span class="line"><span>    public int available() throws IOException {</span></span>
+<span class="line"><span>        return 0;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 读取完，关闭流，释放资源</span></span>
+<span class="line"><span>    public void close() throws IOException {}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 标记读取位置，下次还可以从这里开始读取，使用前要看当前流是否支持，可以使用 markSupport() 方法判断</span></span>
+<span class="line"><span>    public synchronized void mark(int readlimit) {}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 重置读取位置为上次 mark 标记的位置</span></span>
+<span class="line"><span>    public synchronized void reset() throws IOException {</span></span>
+<span class="line"><span>        throw new IOException(&quot;mark/reset not supported&quot;);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 判断当前流是否支持标记流，和上面两个方法配套使用。默认是false，由子类方法重写</span></span>
+<span class="line"><span>    public boolean markSupported() {</span></span>
+<span class="line"><span>        return false;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // JDK9新增：读取 InputStream 中的全部字节并写入到指定的 OutputStream 中</span></span>
+<span class="line"><span>    public long transferTo(OutputStream out) throws IOException {</span></span>
+<span class="line"><span>        Objects.requireNonNull(out, &quot;out&quot;);</span></span>
+<span class="line"><span>        long transferred = 0;</span></span>
+<span class="line"><span>        byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];</span></span>
+<span class="line"><span>        int read;</span></span>
+<span class="line"><span>        while ((read = this.read(buffer, 0, DEFAULT_BUFFER_SIZE)) &gt;= 0) {</span></span>
+<span class="line"><span>            out.write(buffer, 0, read);</span></span>
+<span class="line"><span>            transferred += read;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>        return transferred;</span></span>
+<span class="line"><span>    }</span></span></code></pre></div><blockquote><p>总结下JDK9的更新点</p></blockquote><p>类 java.io.InputStream 中增加了新的方法来读取和复制 InputStream 中包含的数据。</p><ul><li><code>readAllBytes</code>：读取 InputStream 中的所有剩余字节。</li><li><code>readNBytes</code>： 从 InputStream 中读取指定数量的字节到数组中。</li><li><code>transferTo</code>：读取 InputStream 中的全部字节并写入到指定的 OutputStream 中 。</li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>public class TestInputStream {</span></span>
+<span class="line"><span>    private InputStream inputStream;</span></span>
+<span class="line"><span>    private static final String CONTENT = &quot;Hello World&quot;;</span></span>
+<span class="line"><span>    @Before</span></span>
+<span class="line"><span>    public void setUp() throws Exception {</span></span>
+<span class="line"><span>        this.inputStream =</span></span>
+<span class="line"><span>            TestInputStream.class.getResourceAsStream(&quot;/input.txt&quot;);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    @Test</span></span>
+<span class="line"><span>    public void testReadAllBytes() throws Exception {</span></span>
+<span class="line"><span>        final String content = new String(this.inputStream.readAllBytes());</span></span>
+<span class="line"><span>        assertEquals(CONTENT, content);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    @Test</span></span>
+<span class="line"><span>    public void testReadNBytes() throws Exception {</span></span>
+<span class="line"><span>        final byte[] data = new byte[5];</span></span>
+<span class="line"><span>        this.inputStream.readNBytes(data, 0, 5);</span></span>
+<span class="line"><span>        assertEquals(&quot;Hello&quot;, new String(data));</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    @Test</span></span>
+<span class="line"><span>    public void testTransferTo() throws Exception {</span></span>
+<span class="line"><span>        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();</span></span>
+<span class="line"><span>        this.inputStream.transferTo(outputStream);</span></span>
+<span class="line"><span>        assertEquals(CONTENT, outputStream.toString());</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><ul><li><strong><code>read(byte[], int, int)</code> 和 <code>readNBytes(byte[], int, int)</code>看似是实现的相同功能，为何会设计readNBytes方法呢</strong>？</li></ul><p>这个问题可以参看<a href="https://stackoverflow.com/questions/53754387/java-read-vs-readnbytes-of-the-inputstream-instance" target="_blank" rel="noreferrer">这里在新窗口打开</a></p><ol><li>read(byte[], int, int)是尝试读到最多len个bytes，但是<strong>读取到的内容长度可能是小于len</strong>的。</li><li>readNBytes(byte[], int, int) 会一直（while循环）查找直到stream尾为止</li></ol><p>举个例子：如果文本内容是<code>12345&lt;end&gt;</code>, read(s,0,10)是允许返回<code>123</code>的, 而readNbytes(s,0,10)会一直（while循环）查找直到stream尾为止，并返回<code>12345</code>.</p><blockquote><p>补充下JDK11为什么会增加nullInputStream方法的设计？即空对象模式</p></blockquote><ul><li><strong>空对象模式</strong></li></ul><p>举个例子：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>public class MyParser implements Parser {</span></span>
+<span class="line"><span>  private static Action NO_ACTION = new Action() {</span></span>
+<span class="line"><span>    public void doSomething() { /* do nothing */ }</span></span>
+<span class="line"><span>  };</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>  public Action findAction(String userInput) {</span></span>
+<span class="line"><span>    // ...</span></span>
+<span class="line"><span>    if ( /* we can&#39;t find any actions */ ) {</span></span>
+<span class="line"><span>      return NO_ACTION;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>然后便<strong>可以始终可以这么调用，而不用再判断空了</strong></p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>ParserFactory.getParser().findAction(someInput).doSomething();</span></span></code></pre></div><h3 id="filterinputstream" tabindex="-1">FilterInputStream <a class="header-anchor" href="#filterinputstream" aria-label="Permalink to &quot;FilterInputStream&quot;">​</a></h3><p>FilterInputStream 源码如下</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>public class FilterInputStream extends InputStream {</span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>    // 被装饰的inputStream</span></span>
+<span class="line"><span>    protected volatile InputStream in;</span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>    // 构造函数，注入被装饰的inputStream</span></span>
+<span class="line"><span>    protected FilterInputStream(InputStream in) {</span></span>
+<span class="line"><span>        this.in = in;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 本质是调用被装饰的inputStream的方法</span></span>
+<span class="line"><span>    public int read() throws IOException {</span></span>
+<span class="line"><span>        return in.read();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    public int read(byte b[]) throws IOException {</span></span>
+<span class="line"><span>        return read(b, 0, b.length);</span></span>
+<span class="line"><span>     }</span></span>
+<span class="line"><span>    public int read(byte b[], int off, int len) throws IOException {</span></span>
+<span class="line"><span>        return in.read(b, off, len);</span></span>
+<span class="line"><span>     }</span></span>
+<span class="line"><span>    public long skip(long n) throws IOException {</span></span>
+<span class="line"><span>        return in.skip(n);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    public int available() throws IOException {</span></span>
+<span class="line"><span>        return in.available();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    public void close() throws IOException {</span></span>
+<span class="line"><span>        in.close();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    public synchronized void mark(int readlimit) {</span></span>
+<span class="line"><span>        in.mark(readlimit);</span></span>
+<span class="line"><span>     }</span></span>
+<span class="line"><span>    public synchronized void reset() throws IOException {</span></span>
+<span class="line"><span>        in.reset();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    public boolean markSupported() {</span></span>
+<span class="line"><span>        return in.markSupported();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p><strong>为什么被装饰的inputStream是volatile类型的</strong>？</p><p>请参看： <a href="https://pdai.tech/md/java/thread/java-thread-x-key-volatile.html" target="_blank" rel="noreferrer">关键字: volatile详解</a></p><h3 id="bytearrayinputstream" tabindex="-1">ByteArrayInputStream <a class="header-anchor" href="#bytearrayinputstream" aria-label="Permalink to &quot;ByteArrayInputStream&quot;">​</a></h3><p>ByteArrayInputStream源码如下</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>public class ByteArrayInputStream extends InputStream {</span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>    // 内部保存的byte 数组</span></span>
+<span class="line"><span>    protected byte buf[];</span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>    // 读取下一个字节的数组下标，byte[pos]就是read获取的下个字节</span></span>
+<span class="line"><span>    protected int pos;</span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>    // mark的数组下标位置</span></span>
+<span class="line"><span>    protected int mark = 0;</span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>    // 保存的有效byte的个数</span></span>
+<span class="line"><span>    protected int count;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 构造方法</span></span>
+<span class="line"><span>    public ByteArrayInputStream(byte buf[]) {</span></span>
+<span class="line"><span>        this.buf = buf;              </span></span>
+<span class="line"><span>        this.pos = 0;</span></span>
+<span class="line"><span>        this.count = buf.length;</span></span>
+<span class="line"><span>     }</span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>    // 构造方法，带offset的</span></span>
+<span class="line"><span>     public ByteArrayInputStream(byte buf[], int offset, int length) {                </span></span>
+<span class="line"><span>        this.buf = buf;</span></span>
+<span class="line"><span>        this.pos = offset;</span></span>
+<span class="line"><span>        this.count = Math.min(offset + length, buf.length);</span></span>
+<span class="line"><span>        this.mark = offset;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>    // 从流中读取下一个字节，没有读取到返回 -1</span></span>
+<span class="line"><span>    public synchronized int read() {</span></span>
+<span class="line"><span>        return (pos &lt; count) ? (buf[pos++] &amp; 0xff) : -1;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>    // 从第 off 位置读取&lt;b&gt;最多(实际可能小于)&lt;/b&gt; len 长度字节的数据放到 byte 数组中，流是以 -1 来判断是否读取结束的</span></span>
+<span class="line"><span>    public synchronized int read(byte b[], int off, int len) {</span></span>
+<span class="line"><span>        // 边界检查</span></span>
+<span class="line"><span>        if (b == null) {</span></span>
+<span class="line"><span>            throw new NullPointerException();</span></span>
+<span class="line"><span>        } else if (off &lt; 0 || len &lt; 0 || len &gt; b.length - off) {</span></span>
+<span class="line"><span>            throw new IndexOutOfBoundsException();</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        if (pos &gt;= count) {</span></span>
+<span class="line"><span>            return -1;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        int avail = count - pos;</span></span>
+<span class="line"><span>        if (len &gt; avail) {</span></span>
+<span class="line"><span>            len = avail;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>        if (len &lt;= 0) {</span></span>
+<span class="line"><span>            return 0;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        // 从buf拷贝到byte 数组b中</span></span>
+<span class="line"><span>        System.arraycopy(buf, pos, b, off, len);</span></span>
+<span class="line"><span>        pos += len;</span></span>
+<span class="line"><span>        return len;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 跳过指定个数的字节不读取</span></span>
+<span class="line"><span>    public synchronized long skip(long n) {</span></span>
+<span class="line"><span>        long k = count - pos;</span></span>
+<span class="line"><span>        if (n &lt; k) {</span></span>
+<span class="line"><span>            k = n &lt; 0 ? 0 : n;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        pos += k;</span></span>
+<span class="line"><span>        return k;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 还有稍稍byte在buffer中未读取，即总的count 减去 当前byte位置</span></span>
+<span class="line"><span>    public synchronized int available() {</span></span>
+<span class="line"><span>        return count - pos;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 支持mark所以返回true</span></span>
+<span class="line"><span>    public boolean markSupported() { </span></span>
+<span class="line"><span>        return true;</span></span>
+<span class="line"><span>    }  </span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 在流中当前位置mark, readAheadLimit参数未使用    </span></span>
+<span class="line"><span>    public void mark(int readAheadLimit) {            </span></span>
+<span class="line"><span>        mark = pos;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 重置流，即回到mark的位置</span></span>
+<span class="line"><span>    public synchronized void reset() {</span></span>
+<span class="line"><span>        pos = mark;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 关闭ByteArrayInputStream不会产生任何动作</span></span>
+<span class="line"><span>    public void close() throws IOException { </span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><h3 id="bufferedinputstream" tabindex="-1">BufferedInputStream <a class="header-anchor" href="#bufferedinputstream" aria-label="Permalink to &quot;BufferedInputStream&quot;">​</a></h3><p>BufferedInputStream源码如下</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>public class BufferedInputStream extends FilterInputStream {</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 默认的buffer大小</span></span>
+<span class="line"><span>    private static int DEFAULT_BUFFER_SIZE = 8192;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 分配的最大数组大小。</span></span>
+<span class="line"><span>    // 由于一些VM在数组中保留一些头字，所以尝试分配较大的阵列可能会导致OutOfMemoryError（请求的阵列大小超过VM限制）</span></span>
+<span class="line"><span>    private static int MAX_BUFFER_SIZE = Integer.MAX_VALUE - 8;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 内部保存在byte 数组中</span></span>
+<span class="line"><span>    protected volatile byte buf[];</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 关闭流的方法可能是异步的，所以使用原子AtomicReferenceFieldUpdater提供CAS无锁方式（可以解决CAS的ABA问题）来保证</span></span>
+<span class="line"><span>    private static final AtomicReferenceFieldUpdater&lt;BufferedInputStream, byte[]&gt; bufUpdater =</span></span>
+<span class="line"><span>        AtomicReferenceFieldUpdater.newUpdater(BufferedInputStream.class,  byte[].class, &quot;buf&quot;);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 有效byte的大小</span></span>
+<span class="line"><span>    protected int count;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 当前位置</span></span>
+<span class="line"><span>    protected int pos;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 最后一次，调用mark方法，标记的位置</span></span>
+<span class="line"><span>    protected int markpos = -1;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    /**</span></span>
+<span class="line"><span>     * 该变量惟一入口就是mark(int readLimit)，好比调用方法mark(1024)，那么后面读取的数据若是</span></span>
+<span class="line"><span>     * 超过了1024字节，那么这次mark就为无效标记，子类能够选择抛弃该mark标记，从头开始。不过具体实现</span></span>
+<span class="line"><span>     * 跟具体的子类有关，在BufferedInputStream中，会抛弃mark标记，从新将markpos赋值为-1</span></span>
+<span class="line"><span>     */</span></span>
+<span class="line"><span>    protected int marklimit;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 获取被装饰的stream</span></span>
+<span class="line"><span>    private InputStream getInIfOpen() throws IOException {</span></span>
+<span class="line"><span>        InputStream input = in;</span></span>
+<span class="line"><span>        if (input == null)</span></span>
+<span class="line"><span>            throw new IOException(&quot;Stream closed&quot;);</span></span>
+<span class="line"><span>        return input;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 获取实际内部的buffer数组</span></span>
+<span class="line"><span>    private byte[] getBufIfOpen() throws IOException {</span></span>
+<span class="line"><span>        byte[] buffer = buf;</span></span>
+<span class="line"><span>        if (buffer == null)</span></span>
+<span class="line"><span>            throw new IOException(&quot;Stream closed&quot;);</span></span>
+<span class="line"><span>        return buffer;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 构造函数，buffer是8kb</span></span>
+<span class="line"><span>    public BufferedInputStream(InputStream in) {</span></span>
+<span class="line"><span>        this(in, DEFAULT_BUFFER_SIZE);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 构造函数，指定buffer大小</span></span>
+<span class="line"><span>    public BufferedInputStream(InputStream in, int size) {</span></span>
+<span class="line"><span>        super(in);</span></span>
+<span class="line"><span>        if (size &lt;= 0) {</span></span>
+<span class="line"><span>            throw new IllegalArgumentException(&quot;Buffer size &lt;= 0&quot;);</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>        buf = new byte[size];</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    /**</span></span>
+<span class="line"><span>     * 用更多的数据填充缓冲区,考虑到shuffling和其他处理标记的技巧，</span></span>
+<span class="line"><span>     * 假设它是由同步方法调用的。该方法还假设所有数据已经被读入，因此pos &gt;count。</span></span>
+<span class="line"><span>     */</span></span>
+<span class="line"><span>    private void fill() throws IOException {</span></span>
+<span class="line"><span>    	// 得到内部缓冲区buffer</span></span>
+<span class="line"><span>        byte[] buffer = getBufIfOpen();</span></span>
+<span class="line"><span>        // 没有mark的情况下， pos为0</span></span>
+<span class="line"><span>        if (markpos &lt; 0)</span></span>
+<span class="line"><span>            pos = 0;            /* no mark: throw away the buffer */</span></span>
+<span class="line"><span>        // pos &gt;= buffer.length  buffer已经被读取完了 </span></span>
+<span class="line"><span>        else if (pos &gt;= buffer.length)  /* no room left in buffer */</span></span>
+<span class="line"><span>        	// markpos &gt; 0  有标记，标记处在缓存中间</span></span>
+<span class="line"><span>            if (markpos &gt; 0) {  /* can throw away early part of the buffer */</span></span>
+<span class="line"><span>            	// 把buffer中，markpos到pos的部分移动到0-sz处，pos设置为sz，markpos为0</span></span>
+<span class="line"><span>                int sz = pos - markpos;</span></span>
+<span class="line"><span>                System.arraycopy(buffer, markpos, buffer, 0, sz);</span></span>
+<span class="line"><span>                pos = sz;</span></span>
+<span class="line"><span>                markpos = 0;</span></span>
+<span class="line"><span>                // markpos已经为0了，marklimit比buffer.length小，再读取buffer已经没有地方了</span></span>
+<span class="line"><span>            } else if (buffer.length &gt;= marklimit) {</span></span>
+<span class="line"><span>            	// 清空缓存，清空标记，markpos为-1，pos为0</span></span>
+<span class="line"><span>                markpos = -1;   /* buffer got too big, invalidate mark */</span></span>
+<span class="line"><span>                pos = 0;        /* drop buffer contents */</span></span>
+<span class="line"><span>                // markpos已经为0了，marklimit比buffer.length大，而buffer.length已经最大了，不能扩容</span></span>
+<span class="line"><span>            } else if (buffer.length &gt;= MAX_BUFFER_SIZE) {</span></span>
+<span class="line"><span>                throw new OutOfMemoryError(&quot;Required array size too large&quot;);</span></span>
+<span class="line"><span>               // markpos已经为0了，marklimit比buffer.length大</span></span>
+<span class="line"><span>            } else {            /* grow buffer */</span></span>
+<span class="line"><span>            	// 建立一个长度为min(2*pos,marklimit,MAX_BUFFER_SIZE),的缓存数组，然后把原来0-pos移动到新数组的0-pos处</span></span>
+<span class="line"><span>                int nsz = (pos &lt;= MAX_BUFFER_SIZE - pos) ?</span></span>
+<span class="line"><span>                        pos * 2 : MAX_BUFFER_SIZE;</span></span>
+<span class="line"><span>                if (nsz &gt; marklimit)</span></span>
+<span class="line"><span>                    nsz = marklimit;</span></span>
+<span class="line"><span>                byte nbuf[] = new byte[nsz];</span></span>
+<span class="line"><span>                System.arraycopy(buffer, 0, nbuf, 0, pos);</span></span>
+<span class="line"><span>                // 用bufUpdater替换buffer</span></span>
+<span class="line"><span>                if (!bufUpdater.compareAndSet(this, buffer, nbuf)) {</span></span>
+<span class="line"><span>                    // Can&#39;t replace buf if there was an async close.</span></span>
+<span class="line"><span>                    // Note: This would need to be changed if fill()</span></span>
+<span class="line"><span>                    // is ever made accessible to multiple threads.</span></span>
+<span class="line"><span>                    // But for now, the only way CAS can fail is via close.</span></span>
+<span class="line"><span>                    // assert buf == null;</span></span>
+<span class="line"><span>                    throw new IOException(&quot;Stream closed&quot;);</span></span>
+<span class="line"><span>                }</span></span>
+<span class="line"><span>                buffer = nbuf;</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>        // 当前读取上限count为pos</span></span>
+<span class="line"><span>        count = pos;</span></span>
+<span class="line"><span>        // 从内部的输入流，读取pos到buffer.length部分，读取的字节数加到count</span></span>
+<span class="line"><span>        int n = getInIfOpen().read(buffer, pos, buffer.length - pos);</span></span>
+<span class="line"><span>        if (n &gt; 0)</span></span>
+<span class="line"><span>            count = n + pos;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 读取byte</span></span>
+<span class="line"><span>    public synchronized int read() throws IOException {</span></span>
+<span class="line"><span>        // 说明当前buf[]数组大小不够了，须要fill()</span></span>
+<span class="line"><span>        if (pos &gt;= count) {</span></span>
+<span class="line"><span>            fill();</span></span>
+<span class="line"><span>            // 说明没有读取到任何数据</span></span>
+<span class="line"><span>            if (pos &gt;= count)</span></span>
+<span class="line"><span>                return -1;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>        return getBufIfOpen()[pos++] &amp; 0xff;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    /**</span></span>
+<span class="line"><span>     * Read characters into a portion of an array, reading from the underlying</span></span>
+<span class="line"><span>     * stream at most once if necessary.</span></span>
+<span class="line"><span>     */</span></span>
+<span class="line"><span>    private int read1(byte[] b, int off, int len) throws IOException {</span></span>
+<span class="line"><span>        int avail = count - pos;</span></span>
+<span class="line"><span>        if (avail &lt;= 0) {</span></span>
+<span class="line"><span>            // 当写入指定数组b的长度大小超过BufferedInputStream中核心缓存数组buf[]的大小而且 markpos &lt; 0，那么就直接从数据流中读取数据给b数组，而不经过buf[]缓存数组，避免buf[]数组急剧增大</span></span>
+<span class="line"><span>            if (len &gt;= getBufIfOpen().length &amp;&amp; markpos &lt; 0) {</span></span>
+<span class="line"><span>                return getInIfOpen().read(b, off, len);</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>            fill();</span></span>
+<span class="line"><span>            avail = count - pos;</span></span>
+<span class="line"><span>            if (avail &lt;= 0) return -1;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>        int cnt = (avail &lt; len) ? avail : len;</span></span>
+<span class="line"><span>        System.arraycopy(getBufIfOpen(), pos, b, off, cnt);</span></span>
+<span class="line"><span>        pos += cnt;</span></span>
+<span class="line"><span>        return cnt;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 读取到byte数组b中</span></span>
+<span class="line"><span>    public synchronized int read(byte b[], int off, int len)</span></span>
+<span class="line"><span>        throws IOException</span></span>
+<span class="line"><span>    {</span></span>
+<span class="line"><span>        getBufIfOpen(); // Check for closed stream</span></span>
+<span class="line"><span>        if ((off | len | (off + len) | (b.length - (off + len))) &lt; 0) {</span></span>
+<span class="line"><span>            throw new IndexOutOfBoundsException();</span></span>
+<span class="line"><span>        } else if (len == 0) {</span></span>
+<span class="line"><span>            return 0;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        int n = 0;</span></span>
+<span class="line"><span>        for (;;) {</span></span>
+<span class="line"><span>            int nread = read1(b, off + n, len - n);</span></span>
+<span class="line"><span>            if (nread &lt;= 0)</span></span>
+<span class="line"><span>                return (n == 0) ? nread : n;</span></span>
+<span class="line"><span>            n += nread;</span></span>
+<span class="line"><span>            if (n &gt;= len)</span></span>
+<span class="line"><span>                return n;</span></span>
+<span class="line"><span>            // if not closed but no bytes available, return</span></span>
+<span class="line"><span>            InputStream input = in;</span></span>
+<span class="line"><span>            if (input != null &amp;&amp; input.available() &lt;= 0)</span></span>
+<span class="line"><span>                return n;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 跳过n个</span></span>
+<span class="line"><span>    public synchronized long skip(long n) throws IOException {</span></span>
+<span class="line"><span>        getBufIfOpen(); // Check for closed stream</span></span>
+<span class="line"><span>        if (n &lt;= 0) {</span></span>
+<span class="line"><span>            return 0;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>        long avail = count - pos;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        if (avail &lt;= 0) {</span></span>
+<span class="line"><span>            // If no mark position set then don&#39;t keep in buffer</span></span>
+<span class="line"><span>            if (markpos &lt;0)</span></span>
+<span class="line"><span>                return getInIfOpen().skip(n);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>            // Fill in buffer to save bytes for reset</span></span>
+<span class="line"><span>            fill();</span></span>
+<span class="line"><span>            avail = count - pos;</span></span>
+<span class="line"><span>            if (avail &lt;= 0)</span></span>
+<span class="line"><span>                return 0;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        long skipped = (avail &lt; n) ? avail : n;</span></span>
+<span class="line"><span>        pos += skipped;</span></span>
+<span class="line"><span>        return skipped;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // buf[]数组剩余字节数+输入流中剩余字节数</span></span>
+<span class="line"><span>    public synchronized int available() throws IOException {</span></span>
+<span class="line"><span>        int n = count - pos;</span></span>
+<span class="line"><span>        int avail = getInIfOpen().available();</span></span>
+<span class="line"><span>        return n &gt; (Integer.MAX_VALUE - avail)</span></span>
+<span class="line"><span>                    ? Integer.MAX_VALUE</span></span>
+<span class="line"><span>                    : n + avail;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>    // 标记位置，marklimit只有在这里才可以被赋值，readlimit表示mark()方法执行后，最多可以从流中读取的数据</span></span>
+<span class="line"><span>    // 若是超过该字节大小，那么在fill()的时候，就会认为此mark()标记无效，从新将 markpos = -1，pos = 0</span></span>
+<span class="line"><span>    public synchronized void mark(int readlimit) {</span></span>
+<span class="line"><span>        marklimit = readlimit;</span></span>
+<span class="line"><span>        markpos = pos;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 重置位置</span></span>
+<span class="line"><span>    public synchronized void reset() throws IOException {</span></span>
+<span class="line"><span>        getBufIfOpen(); // 如果已经close, 则直接报错</span></span>
+<span class="line"><span>        if (markpos &lt; 0)</span></span>
+<span class="line"><span>            throw new IOException(&quot;Resetting to invalid mark&quot;);</span></span>
+<span class="line"><span>        pos = markpos;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 支持mark, 所以返回true</span></span>
+<span class="line"><span>    public boolean markSupported() {</span></span>
+<span class="line"><span>        return true;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 通过AtomicReferenceFieldUpdater的CAS无锁方式close</span></span>
+<span class="line"><span>    public void close() throws IOException {</span></span>
+<span class="line"><span>        byte[] buffer;</span></span>
+<span class="line"><span>        while ( (buffer = buf) != null) {</span></span>
+<span class="line"><span>            if (bufUpdater.compareAndSet(this, buffer, null)) {</span></span>
+<span class="line"><span>                InputStream input = in;</span></span>
+<span class="line"><span>                in = null;</span></span>
+<span class="line"><span>                if (input != null)</span></span>
+<span class="line"><span>                    input.close();</span></span>
+<span class="line"><span>                return;</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>            // Else retry in case a new buf was CASed in fill()</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>AtomicReferenceFieldUpdater具体可以参考：<a href="https://pdai.tech/md/java/thread/java-thread-x-juc-AtomicInteger.html" target="_blank" rel="noreferrer">JUC原子类: CAS, Unsafe和原子类详解</a></p><h2 id="参考文章" tabindex="-1">参考文章 <a class="header-anchor" href="#参考文章" aria-label="Permalink to &quot;参考文章&quot;">​</a></h2><ul><li>JDK 11 源码</li><li><a href="https://www.cnblogs.com/winterfells/p/8745297.html" target="_blank" rel="noreferrer">https://www.cnblogs.com/winterfells/p/8745297.html</a></li><li><a href="https://www.cnblogs.com/AdaiCoffee/p/11369699.html" target="_blank" rel="noreferrer">https://www.cnblogs.com/AdaiCoffee/p/11369699.html</a></li></ul><p>本文转自 <a href="https://pdai.tech" target="_blank" rel="noreferrer">https://pdai.tech</a>，如有侵权，请联系删除。</p></div></div></main><footer class="VPDocFooter" data-v-39a288b8 data-v-e257564d><!--[--><!--[--><!--[--><!--[--><div style="" class="vitepress-backTop-main" title="返回顶部" data-v-69be28d1><svg t="1720595052079" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4279" width="200" height="200" data-v-69be28d1><path d="M752.736 431.063C757.159 140.575 520.41 8.97 504.518 0.41V0l-0.45 0.205-0.41-0.205v0.41c-15.934 8.56-252.723 140.165-248.259 430.653-48.21 31.457-98.713 87.368-90.685 184.074 8.028 96.666 101.007 160.768 136.601 157.287 35.595-3.482 25.232-30.31 25.232-30.31l12.206-50.095s52.47 80.569 69.304 80.528c15.114-1.23 87-0.123 95.6 0h0.82c8.602-0.123 80.486-1.23 95.6 0 16.794 0 69.305-80.528 69.305-80.528l12.165 50.094s-10.322 26.83 25.272 30.31c35.595 3.482 128.574-60.62 136.602-157.286 8.028-96.665-42.475-152.617-90.685-184.074z m-248.669-4.26c-6.758-0.123-94.781-3.359-102.891-107.192 2.95-98.714 95.97-107.438 102.891-107.93 6.964 0.492 99.943 9.216 102.892 107.93-8.11 103.833-96.174 107.07-102.892 107.192z m-52.019 500.531c0 11.838-9.42 21.382-21.012 21.382a21.217 21.217 0 0 1-21.054-21.34V821.74c0-11.797 9.421-21.382 21.054-21.382 11.591 0 21.012 9.585 21.012 21.382v105.635z m77.333 57.222a21.504 21.504 0 0 1-21.34 21.626 21.504 21.504 0 0 1-21.34-21.626V827.474c0-11.96 9.543-21.668 21.299-21.668 11.796 0 21.38 9.708 21.38 21.668v157.082z m71.147-82.043c0 11.796-9.42 21.34-21.053 21.34a21.217 21.217 0 0 1-21.013-21.34v-75.367c0-11.755 9.421-21.299 21.013-21.299 11.632 0 21.053 9.544 21.053 21.3v75.366z" fill="#FFF" p-id="4280" data-v-69be28d1></path></svg></div><!--]--><!--]--><!--]--><!--]--><div class="edit-info" data-v-e257564d><!----><div class="last-updated" data-v-e257564d><p class="VPLastUpdated" data-v-e257564d data-v-e98dd255>最后更新于: <time datetime="2025-01-24T08:12:26.000Z" data-v-e98dd255></time></p></div></div><nav class="prev-next" aria-labelledby="doc-footer-aria-label" data-v-e257564d><span class="visually-hidden" id="doc-footer-aria-label" data-v-e257564d>Pager</span><div class="pager" data-v-e257564d><a class="VPLink link pager-link prev" href="/vitepress-blog-template/java/io/java-io-basic-design-pattern" data-v-e257564d><!--[--><span class="desc" data-v-e257564d>上一页</span><span class="title" data-v-e257564d> Java IO - 设计模式(装饰者模式) </span><!--]--></a></div><div class="pager" data-v-e257564d><a class="VPLink link pager-link next" href="/vitepress-blog-template/java/io/java-io-basic-code-outputstream" data-v-e257564d><!--[--><span class="desc" data-v-e257564d>下一页</span><span class="title" data-v-e257564d> Java IO - 源码: OutputStream </span><!--]--></a></div></nav></footer><!--[--><!--[--><!--[--><div style="margin-top:24px;"><!----></div><!--]--><!--]--><!--]--></div></div></div><!--[--><!--]--></div></div><footer class="VPFooter has-sidebar" data-v-5d98c3a5 data-v-e315a0ad><div class="container" data-v-e315a0ad><p class="message" data-v-e315a0ad>Released under the MIT License.</p><p class="copyright" data-v-e315a0ad>Copyright © 2024-2025 lz</p></div></footer><!--[--><!--]--></div></div>
+    
+    
+  </body>
+</html>

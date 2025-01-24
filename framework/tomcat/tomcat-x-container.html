@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Tomcat - Request请求处理: Container设计 | 知识星球</title>
+    <meta name="description" content="不积硅步，无以至千里。">
+    <meta name="generator" content="VitePress v1.6.3">
+    <link rel="preload stylesheet" href="/vitepress-blog-template/assets/style.hz1UbIDt.css" as="style">
+    <link rel="preload stylesheet" href="/vitepress-blog-template/vp-icons.css" as="style">
+    <script type="module" src="/vitepress-blog-template/assets/chunks/metadata.079420e9.js"></script>
+    <script type="module" src="/vitepress-blog-template/assets/app.D1P0Vk3Q.js"></script>
+    <link rel="preload" href="/vitepress-blog-template/assets/inter-roman-latin.Di8DUHzh.woff2" as="font" type="font/woff2" crossorigin="">
+    <link rel="modulepreload" href="/vitepress-blog-template/assets/chunks/theme.FAufiNZT.js">
+    <link rel="modulepreload" href="/vitepress-blog-template/assets/chunks/framework.BrYByd3F.js">
+    <link rel="modulepreload" href="/vitepress-blog-template/assets/chunks/tomcat-x-container-3.CpCiapYt.js">
+    <link rel="modulepreload" href="/vitepress-blog-template/assets/framework_tomcat_tomcat-x-container.md.1CaUmVL9.lean.js">
+    <link rel="icon" type="image/svg+xml" href="/vitepress-blog-template/vitepress-logo-mini.svg">
+    <link rel="icon" type="image/png" href="/vitepress-blog-template/vitepress-logo-mini.png">
+    <meta name="theme-color" content="#5f67ee">
+    <script id="check-dark-mode">(()=>{const e=localStorage.getItem("vitepress-theme-appearance")||"auto",a=window.matchMedia("(prefers-color-scheme: dark)").matches;(!e||e==="auto"?a:e==="dark")&&document.documentElement.classList.add("dark")})();</script>
+    <script id="check-mac-os">document.documentElement.classList.toggle("mac",/Mac|iPhone|iPod|iPad/i.test(navigator.platform));</script>
+  </head>
+  <body>
+    <div id="app"><div class="Layout" data-v-5d98c3a5><!--[--><!--]--><!--[--><span tabindex="-1" data-v-0b0ada53></span><a href="#VPContent" class="VPSkipLink visually-hidden" data-v-0b0ada53>Skip to content</a><!--]--><!----><header class="VPNav" data-v-5d98c3a5 data-v-ae24b3ad><div class="VPNavBar" data-v-ae24b3ad data-v-6aa21345><div class="wrapper" data-v-6aa21345><div class="container" data-v-6aa21345><div class="title" data-v-6aa21345><div class="VPNavBarTitle has-sidebar" data-v-6aa21345 data-v-1168a8e4><a class="title" href="/vitepress-blog-template/" data-v-1168a8e4><!--[--><!--]--><!--[--><img class="VPImage logo" src="/vitepress-blog-template/vitepress-logo-mini.svg" width="24" height="24" alt data-v-8426fc1a><!--]--><span data-v-1168a8e4>知识星球</span><!--[--><!--]--></a></div></div><div class="content" data-v-6aa21345><div class="content-body" data-v-6aa21345><!--[--><!--]--><div class="VPNavBarSearch search" data-v-6aa21345><!--[--><!----><div id="local-search"><button type="button" class="DocSearch DocSearch-Button" aria-label="搜索文档"><span class="DocSearch-Button-Container"><span class="vp-icon DocSearch-Search-Icon"></span><span class="DocSearch-Button-Placeholder">搜索文档</span></span><span class="DocSearch-Button-Keys"><kbd class="DocSearch-Button-Key"></kbd><kbd class="DocSearch-Button-Key">K</kbd></span></button></div><!--]--></div><nav aria-labelledby="main-nav-aria-label" class="VPNavBarMenu menu" data-v-6aa21345 data-v-dc692963><span id="main-nav-aria-label" class="visually-hidden" data-v-dc692963> Main Navigation </span><!--[--><!--[--><a class="VPLink link VPNavBarMenuLink" href="/vitepress-blog-template/interview/x-interview" tabindex="0" data-v-dc692963 data-v-e56f3d57><!--[--><span data-v-e56f3d57>面试</span><!--]--></a><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>Java</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>Java面向对象和基础</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/basic/java-basic-oop" data-v-35975db6><!--[--><span data-v-35975db6>java面向对象基础</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/basic/java-basic-lan-basic" data-v-35975db6><!--[--><span data-v-35975db6>java基础知识体系</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>Java进阶-集合框架</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/collection/java-collection-all" data-v-35975db6><!--[--><span data-v-35975db6>java集合框架详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>Java进阶-并发框架</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/thread/java-thread-x-overview" data-v-35975db6><!--[--><span data-v-35975db6>java并发知识体系</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/thread/java-thread-x-theorty" data-v-35975db6><!--[--><span data-v-35975db6>java并发理论基础</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/thread/java-thread-x-thread-basic" data-v-35975db6><!--[--><span data-v-35975db6>java线程理论基础</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/thread/java-thread-x-juc-overview" data-v-35975db6><!--[--><span data-v-35975db6>java J.U.C基础</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>Java进阶-IO框架</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/io/java-io-overview" data-v-35975db6><!--[--><span data-v-35975db6>Java IO/NIO/AIO详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>java进阶-新版本特性</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/java8/java8" data-v-35975db6><!--[--><span data-v-35975db6>java 8特性</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/java8up/java-8-up-overview" data-v-35975db6><!--[--><span data-v-35975db6>java 8以上版本特性</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/java8up/java9-11" data-v-35975db6><!--[--><span data-v-35975db6>java 8升级java 11</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/java8up/java12-17" data-v-35975db6><!--[--><span data-v-35975db6>java 11升级java 17</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>java进阶-JVM</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/jvm/java-jvm-classload" data-v-35975db6><!--[--><span data-v-35975db6>java类加载机制</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/jvm/java-jvm-class" data-v-35975db6><!--[--><span data-v-35975db6>java字节码和增强技术</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/jvm/java-jvm-struct" data-v-35975db6><!--[--><span data-v-35975db6>java内存结构</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/jvm/java-jvm-gc" data-v-35975db6><!--[--><span data-v-35975db6>java垃圾回收</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/java/jvm/java-jvm-debug-tools-linux" data-v-35975db6><!--[--><span data-v-35975db6>java调试排错</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>开发</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>开发 - 常用开发基础</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/package/dev-package-x-overview" data-v-35975db6><!--[--><span data-v-35975db6>常用类库详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/regex/dev-regex-all" data-v-35975db6><!--[--><span data-v-35975db6>正则表达式详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/cron/dev-cron-x-usage" data-v-35975db6><!--[--><span data-v-35975db6>CRON表达式详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/protocol/dev-protocol-overview" data-v-35975db6><!--[--><span data-v-35975db6>网络协议和工具详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/security/dev-security-overview" data-v-35975db6><!--[--><span data-v-35975db6>安全相关详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>开发 - 质量保障</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/ut/dev-ut-unit-test" data-v-35975db6><!--[--><span data-v-35975db6>单元测试详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/ut/dev-qt-code-style" data-v-35975db6><!--[--><span data-v-35975db6>统一风格详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/ut/dev-qt-sonarlint" data-v-35975db6><!--[--><span data-v-35975db6>质量管理详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>开发 - 代码重构</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/develop/refactor/dev-refactor-if-else" data-v-35975db6><!--[--><span data-v-35975db6>代码重构相关</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>spring</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>Spring Framework(v5.3)</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/spring" data-v-35975db6><!--[--><span data-v-35975db6>Spring框架知识体系</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/spring-x-framework-introduce" data-v-35975db6><!--[--><span data-v-35975db6>Spring框架组成</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/spring-x-framework-ioc" data-v-35975db6><!--[--><span data-v-35975db6>控制反转(IOC)</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/spring-x-framework-aop" data-v-35975db6><!--[--><span data-v-35975db6>面向切面编程(AOP)</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/spring-x-framework-springmvc" data-v-35975db6><!--[--><span data-v-35975db6>SpringMVC</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>SpringBoot系列(v2.5)</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot知识体系</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-hello-world" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot入门</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-interface-response" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot接口设计和实现</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-mysql-jpa" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot集成MySQL</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-mysql-shardingjdbc" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot集成ShardingJDBC</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-redis-jedis" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot集成Redis</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-postgre-jpa" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot集成Postgre</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-elastic-template" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot集成ElasticSearch</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-socket-websocket" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot集成Socket</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-task-timer" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot定时任务</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-view-thymeleaf" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot后端视图</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-x-monitor-actuator" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot监控</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/spring/springboot/springboot-y-auo-config" data-v-35975db6><!--[--><span data-v-35975db6>SpringBoot进阶</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>数据库</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>数据库基础和原理</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/db/sql/sql-db" data-v-35975db6><!--[--><span data-v-35975db6>数据库原理</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/db/sql-lan/sql-lan" data-v-35975db6><!--[--><span data-v-35975db6>SQL语言</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>SQL 数据库</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/db/sql-mysql/sql-mysql-overview" data-v-35975db6><!--[--><span data-v-35975db6>MySQL 详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>NoSQL 数据库</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/db/nosql-redis/db-redis-overview" data-v-35975db6><!--[--><span data-v-35975db6>Redis 详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/db/nosql-mongo/mongo" data-v-35975db6><!--[--><span data-v-35975db6>MongoDB 详解</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/db/nosql-es/elasticsearch" data-v-35975db6><!--[--><span data-v-35975db6>ElasticSearch 详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>算法</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>算法基础和思想</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-basic-overview" data-v-35975db6><!--[--><span data-v-35975db6>数据结构基础</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-sort-overview" data-v-35975db6><!--[--><span data-v-35975db6>常见排序算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-core-divide-and-conquer" data-v-35975db6><!--[--><span data-v-35975db6>算法思想</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>一些领域算法</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-security-degist" data-v-35975db6><!--[--><span data-v-35975db6>安全算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-char-match" data-v-35975db6><!--[--><span data-v-35975db6>字符串匹配算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-distribute-overview" data-v-35975db6><!--[--><span data-v-35975db6>分布式系统算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-bigdata-overview" data-v-35975db6><!--[--><span data-v-35975db6>海量数据处理</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-load-balance" data-v-35975db6><!--[--><span data-v-35975db6>负载均衡算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-suggest" data-v-35975db6><!--[--><span data-v-35975db6>推荐算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-machine" data-v-35975db6><!--[--><span data-v-35975db6>数据挖掘算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-domain-id-snowflake" data-v-35975db6><!--[--><span data-v-35975db6>ID生成算法</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>其它算法相关</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/algorithm/alg-other-mind" data-v-35975db6><!--[--><span data-v-35975db6>头脑风暴</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup active" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>框架|中间件</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>Web 容器</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/framework/tomcat/tomcat-overview" data-v-35975db6><!--[--><span data-v-35975db6>Tomcat 源码详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>ORM 框架</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-overview" data-v-35975db6><!--[--><span data-v-35975db6>MyBatis 源码详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>分表分库框架</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/framework/ds-sharding/sharding-overview" data-v-35975db6><!--[--><span data-v-35975db6>ShardingSphere 详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>消息队列框架</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/framework/kafka/kafka" data-v-35975db6><!--[--><span data-v-35975db6>kafka 详解</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>架构</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>架构基础和技术点</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-x-overview" data-v-35975db6><!--[--><span data-v-35975db6>架构知识体系</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-x-view" data-v-35975db6><!--[--><span data-v-35975db6>从角色视角看架构</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-x-view-2" data-v-35975db6><!--[--><span data-v-35975db6>从分层视角看架构</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-x-evolution" data-v-35975db6><!--[--><span data-v-35975db6>从演化视角看架构</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-x-pattern" data-v-35975db6><!--[--><span data-v-35975db6>从模式视角看架构</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-y-cache" data-v-35975db6><!--[--><span data-v-35975db6>高并发之缓存</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-y-ratelimit" data-v-35975db6><!--[--><span data-v-35975db6>高并发之限流</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-y-reduce" data-v-35975db6><!--[--><span data-v-35975db6>高并发之降级和熔断</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-y-loadbalance" data-v-35975db6><!--[--><span data-v-35975db6>高可用之负载均衡</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/basic/arch-y-backup" data-v-35975db6><!--[--><span data-v-35975db6>高可用之容灾备份</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>分布式系统</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/distribute/arch-z-theory" data-v-35975db6><!--[--><span data-v-35975db6>分布式理论和一致性算法</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/distribute/arch-z-id" data-v-35975db6><!--[--><span data-v-35975db6>全局唯一ID实现方案</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/distribute/arch-z-lock" data-v-35975db6><!--[--><span data-v-35975db6>分布式锁及实现方案</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/distribute/arch-z-transection" data-v-35975db6><!--[--><span data-v-35975db6>分布式事务及实现方案</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/distribute/arch-z-job" data-v-35975db6><!--[--><span data-v-35975db6>分布式任务及实现方案</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/distribute/arch-z-session" data-v-35975db6><!--[--><span data-v-35975db6>分布式会话及实现方案</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>微服务系统</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/microservice/arch-m-singleton-2" data-v-35975db6><!--[--><span data-v-35975db6>微服务系统和设计</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>系统设计之商业业务平台</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/business/arch-example-seckill" data-v-35975db6><!--[--><span data-v-35975db6>秒杀抽奖相关设计</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/business/arch-example-goods-detail" data-v-35975db6><!--[--><span data-v-35975db6>电商交易相关设计</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/business/arch-example-meituan-jishiwuliu" data-v-35975db6><!--[--><span data-v-35975db6>仓储物流相关设计</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/business/arch-example-xianyu-laxintoufang" data-v-35975db6><!--[--><span data-v-35975db6>拉新投放相关设计</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/business/arch-example-meituan-waimai" data-v-35975db6><!--[--><span data-v-35975db6>其它综合相关设计</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--[--><div class="VPMenuGroup" data-v-b98bc113 data-v-69e747b5><p class="title" data-v-69e747b5>系统设计之数据仓库平台</p><!--[--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/datahouse/arch-example-meituan-db-hp" data-v-35975db6><!--[--><span data-v-35975db6>数据库架构相关设计</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/datahouse/arch-example-meituan-db-binlog" data-v-35975db6><!--[--><span data-v-35975db6>数据同步相关设计</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/datahouse/arch-example-meituan-data-cangchu" data-v-35975db6><!--[--><span data-v-35975db6>数据仓库相关设计</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-69e747b5 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/arch/datahouse/arch-example-meituan-data-zhili" data-v-35975db6><!--[--><span data-v-35975db6>数据治理相关设计</span><!--]--></a></div><!--]--><!--]--></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-dc692963 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-cf11d7a2><span class="text" data-v-cf11d7a2><!----><span data-v-cf11d7a2>工具|部署</span><span class="vpi-chevron-down text-icon" data-v-cf11d7a2></span></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><div class="items" data-v-b98bc113><!--[--><!--[--><div class="VPMenuLink" data-v-b98bc113 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/tool/tool-list-overview" data-v-35975db6><!--[--><span data-v-35975db6> 工具清单  </span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-b98bc113 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/tool/tool-git" data-v-35975db6><!--[--><span data-v-35975db6> 开发工具详解  </span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-b98bc113 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/tool/linux" data-v-35975db6><!--[--><span data-v-35975db6> Linux  </span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-b98bc113 data-v-35975db6><a class="VPLink link" href="/vitepress-blog-template/tool/docker-00-overview" data-v-35975db6><!--[--><span data-v-35975db6> 容器化 - Docker  </span><!--]--></a></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--]--></nav><!----><div class="VPNavBarAppearance appearance" data-v-6aa21345 data-v-6c893767><button class="VPSwitch VPSwitchAppearance" type="button" role="switch" title aria-checked="false" data-v-6c893767 data-v-5337faa4 data-v-1d5665e3><span class="check" data-v-1d5665e3><span class="icon" data-v-1d5665e3><!--[--><span class="vpi-sun sun" data-v-5337faa4></span><span class="vpi-moon moon" data-v-5337faa4></span><!--]--></span></span></button></div><div class="VPSocialLinks VPNavBarSocialLinks social-links" data-v-6aa21345 data-v-0394ad82 data-v-7bc22406><!--[--><a class="VPSocialLink no-icon" href="https://github.com/vuejs/vitepress" aria-label="github" target="_blank" rel="noopener" data-v-7bc22406 data-v-bd121fe5><span class="vpi-social-github"></span></a><!--]--></div><div class="VPFlyout VPNavBarExtra extra" data-v-6aa21345 data-v-bb2aa2f0 data-v-cf11d7a2><button type="button" class="button" aria-haspopup="true" aria-expanded="false" aria-label="extra navigation" data-v-cf11d7a2><span class="vpi-more-horizontal icon" data-v-cf11d7a2></span></button><div class="menu" data-v-cf11d7a2><div class="VPMenu" data-v-cf11d7a2 data-v-b98bc113><!----><!--[--><!--[--><!----><div class="group" data-v-bb2aa2f0><div class="item appearance" data-v-bb2aa2f0><p class="label" data-v-bb2aa2f0>主题</p><div class="appearance-action" data-v-bb2aa2f0><button class="VPSwitch VPSwitchAppearance" type="button" role="switch" title aria-checked="false" data-v-bb2aa2f0 data-v-5337faa4 data-v-1d5665e3><span class="check" data-v-1d5665e3><span class="icon" data-v-1d5665e3><!--[--><span class="vpi-sun sun" data-v-5337faa4></span><span class="vpi-moon moon" data-v-5337faa4></span><!--]--></span></span></button></div></div></div><div class="group" data-v-bb2aa2f0><div class="item social-links" data-v-bb2aa2f0><div class="VPSocialLinks social-links-list" data-v-bb2aa2f0 data-v-7bc22406><!--[--><a class="VPSocialLink no-icon" href="https://github.com/vuejs/vitepress" aria-label="github" target="_blank" rel="noopener" data-v-7bc22406 data-v-bd121fe5><span class="vpi-social-github"></span></a><!--]--></div></div></div><!--]--><!--]--></div></div></div><!--[--><!--]--><button type="button" class="VPNavBarHamburger hamburger" aria-label="mobile navigation" aria-expanded="false" aria-controls="VPNavScreen" data-v-6aa21345 data-v-e5dd9c1c><span class="container" data-v-e5dd9c1c><span class="top" data-v-e5dd9c1c></span><span class="middle" data-v-e5dd9c1c></span><span class="bottom" data-v-e5dd9c1c></span></span></button></div></div></div></div><div class="divider" data-v-6aa21345><div class="divider-line" data-v-6aa21345></div></div></div><!----></header><div class="VPLocalNav has-sidebar empty" data-v-5d98c3a5 data-v-a6f0e41e><div class="container" data-v-a6f0e41e><button class="menu" aria-expanded="false" aria-controls="VPSidebarNav" data-v-a6f0e41e><span class="vpi-align-left menu-icon" data-v-a6f0e41e></span><span class="menu-text" data-v-a6f0e41e>菜单</span></button><div class="VPLocalNavOutlineDropdown" style="--vp-vh:0px;" data-v-a6f0e41e data-v-8a42e2b4><button data-v-8a42e2b4>回到顶部</button><!----></div></div></div><aside class="VPSidebar" data-v-5d98c3a5 data-v-319d5ca6><div class="curtain" data-v-319d5ca6></div><nav class="nav" id="VPSidebarNav" aria-labelledby="sidebar-aria-label" tabindex="-1" data-v-319d5ca6><span class="visually-hidden" id="sidebar-aria-label" data-v-319d5ca6> Sidebar Navigation </span><!--[--><!--]--><!--[--><div class="no-transition group" data-v-c40bc020><section class="VPSidebarItem level-0 has-active" data-v-c40bc020 data-v-b3fd67f8><!----><div class="items" data-v-b3fd67f8><!--[--><section class="VPSidebarItem level-1 collapsible has-active" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" role="button" tabindex="0" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><h3 class="text" data-v-b3fd67f8>Web容器 - Tomcat知识体系详解 </h3><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-b3fd67f8><span class="vpi-chevron-right caret-icon" data-v-b3fd67f8></span></div></div><div class="items" data-v-b3fd67f8><!--[--><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-overview" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ♥Tomcat源码详解知识体系详解♥ </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-design-web-container" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - 如何设计一个简单的web容器 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-arch" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - 理解Tomcat架构设计 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-sourcecode" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - 源码分析准备和分析入口 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-start" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - 启动过程：初始化和启动流程 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-classloader" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - 启动过程:类加载机制详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-catalina" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - 启动过程:Catalina的加载 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-lifecycle" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - 组件生命周期管理:LifeCycle </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-jmx" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - 组件拓展管理:JMX和MBean </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-listener" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - 事件的监听机制：观察者模式 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-server" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - Server的设计和实现: StandardServer </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-service" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - Service的设计和实现: StandardService </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-executor" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - 线程池的设计与实现：StandardThreadExecutor </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-container" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - Request请求处理: Container设计 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-container-engine" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - Container容器之Engine：StandardEngine </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-container-pipline" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - Container的管道机制：责任链模式 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/tomcat/tomcat-x-connector" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> Tomcat - Request请求处理过程：Connector </p><!--]--></a><!----></div><!----></div><!--]--></div></section><!--]--></div></section></div><div class="no-transition group" data-v-c40bc020><section class="VPSidebarItem level-0" data-v-c40bc020 data-v-b3fd67f8><!----><div class="items" data-v-b3fd67f8><!--[--><section class="VPSidebarItem level-1 collapsible" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" role="button" tabindex="0" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><h3 class="text" data-v-b3fd67f8>ORM框架 - MyBatis知识体系详解 </h3><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-b3fd67f8><span class="vpi-chevron-right caret-icon" data-v-b3fd67f8></span></div></div><div class="items" data-v-b3fd67f8><!--[--><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-overview" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ♥MyBatis知识体系详解♥ </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-y-arch" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> MyBatis详解 - 总体框架设计 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-y-init" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> MyBatis详解 - 初始化基本过程 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-y-config-load" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> MyBatis详解 - 配置解析过程 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-y-config-list" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> MyBatis详解 - 官网配置清单 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-y-config-mapper" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> MyBatis详解 - Mapper映射文件配置 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-y-sql-exec" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> MyBatis详解 - sqlSession执行流程 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-y-dynamic-sql" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> MyBatis详解 - 动态SQL使用与原理 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-y-plugin" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> MyBatis详解 - 插件机制 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-y-plugin-page" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> MyBatis详解 - 插件之分页机制 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-y-datasource" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> MyBatis详解 - 数据源与连接池 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-y-trans" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> MyBatis详解 - 事务管理机制 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-y-cache-level1" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> MyBatis详解 - 一级缓存实现机制 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/orm-mybatis/mybatis-y-cache-level2" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> MyBatis详解 - 二级缓存实现机制 </p><!--]--></a><!----></div><!----></div><!--]--></div></section><!--]--></div></section></div><div class="no-transition group" data-v-c40bc020><section class="VPSidebarItem level-0" data-v-c40bc020 data-v-b3fd67f8><!----><div class="items" data-v-b3fd67f8><!--[--><section class="VPSidebarItem level-1 collapsible" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" role="button" tabindex="0" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><h3 class="text" data-v-b3fd67f8>分表分库 - ShardingSphere详解 </h3><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-b3fd67f8><span class="vpi-chevron-right caret-icon" data-v-b3fd67f8></span></div></div><div class="items" data-v-b3fd67f8><!--[--><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/ds-sharding/sharding-overview" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ♥ShardingSphere详解知识体系♥ </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/ds-sharding/sharding-x-arch" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ShardingSphere详解 - 整体架构设计 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/ds-sharding/sharding-x-shard" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ShardingSphere详解 - 数据分片的原理 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/ds-sharding/sharding-x-encrypt" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ShardingSpherex详解 - 数据脱敏(加密)详解 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/ds-sharding/sharding-x-trans-xa" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ShardingSphere详解 - 事务实现原理之两阶段事务XA </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/ds-sharding/sharding-x-trans-saga" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ShardingSphere详解 - 事务实现原理之柔性事务SAGA </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/ds-sharding/sharding-x-trans-seata" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ShardingSphere详解 - 事务实现原理之柔性事务SEATA </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/ds-sharding/sharding-x-scale" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ShardingSphere详解 - 弹性伸缩原理 </p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/ds-sharding/sharding-x-shadow" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8> ShardingSphere详解 - 通过影子库进行压测 </p><!--]--></a><!----></div><!----></div><!--]--></div></section><!--]--></div></section></div><div class="no-transition group" data-v-c40bc020><section class="VPSidebarItem level-0" data-v-c40bc020 data-v-b3fd67f8><!----><div class="items" data-v-b3fd67f8><!--[--><section class="VPSidebarItem level-1 collapsible" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" role="button" tabindex="0" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><h3 class="text" data-v-b3fd67f8>消息队列 - Kafka知识体系详解 </h3><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-b3fd67f8><span class="vpi-chevron-right caret-icon" data-v-b3fd67f8></span></div></div><div class="items" data-v-b3fd67f8><!--[--><div class="VPSidebarItem level-2 is-link" data-v-b3fd67f8 data-v-b3fd67f8><div class="item" data-v-b3fd67f8><div class="indicator" data-v-b3fd67f8></div><a class="VPLink link link" href="/vitepress-blog-template/framework/kafka/kafka" data-v-b3fd67f8><!--[--><p class="text" data-v-b3fd67f8>kafka详解</p><!--]--></a><!----></div><!----></div><!--]--></div></section><!--]--></div></section></div><!--]--><!--[--><!--]--></nav></aside><div class="VPContent has-sidebar" id="VPContent" data-v-5d98c3a5 data-v-1428d186><div class="VPDoc has-sidebar has-aside" data-v-1428d186 data-v-39a288b8><!--[--><!--]--><div class="container" data-v-39a288b8><div class="aside" data-v-39a288b8><div class="aside-curtain" data-v-39a288b8></div><div class="aside-container" data-v-39a288b8><div class="aside-content" data-v-39a288b8><div class="VPDocAside" data-v-39a288b8 data-v-3f215769><!--[--><!--]--><!--[--><!--]--><nav aria-labelledby="doc-outline-aria-label" class="VPDocAsideOutline" data-v-3f215769 data-v-a5bbad30><div class="content" data-v-a5bbad30><div class="outline-marker" data-v-a5bbad30></div><div aria-level="2" class="outline-title" id="doc-outline-aria-label" role="heading" data-v-a5bbad30>目录</div><ul class="VPDocOutlineItem root" data-v-a5bbad30 data-v-b933a997><!--[--><!--]--></ul></div></nav><!--[--><!--]--><div class="spacer" data-v-3f215769></div><!--[--><!--]--><!----><!--[--><!--]--><!--[--><!--]--></div></div></div></div><div class="content" data-v-39a288b8><div class="content-container" data-v-39a288b8><!--[--><!--]--><main class="main" data-v-39a288b8><div style="position:relative;" class="vp-doc _vitepress-blog-template_framework_tomcat_tomcat-x-container" data-v-39a288b8><div><h1 id="tomcat-request请求处理-container设计" tabindex="-1">Tomcat - Request请求处理: Container设计 <a class="header-anchor" href="#tomcat-request请求处理-container设计" aria-label="Permalink to &quot;Tomcat - Request请求处理: Container设计&quot;">​</a></h1><blockquote><p>在理解了Server，Service和Executor后，我们可以进入Request处理环节了。我们知道客户端是可以发起多个请求的，Tomcat也是可以支持多个webapp的，有多个上下文，且一个webapp中可以有多个Servlet...等等，那么Tomcat是如何设计组件来支撑请求处理的呢？本节文将介绍Tomcat的Container设计。@pdai</p></blockquote><h2 id="内容引入" tabindex="-1">内容引入 <a class="header-anchor" href="#内容引入" aria-label="Permalink to &quot;内容引入&quot;">​</a></h2><blockquote><p>这里一定把握住我们上下文之间的衔接，这是我们整个系列理解Tomcat的主线。@pdai</p></blockquote><ul><li>到目前我们研究到了哪里？</li></ul><p><img src="/vitepress-blog-template/images/tomcat/tomcat-x-container-2.png" alt="error.图片加载失败"></p><h2 id="理解思路" tabindex="-1">理解思路 <a class="header-anchor" href="#理解思路" aria-label="Permalink to &quot;理解思路&quot;">​</a></h2><ul><li><strong>为什么我们说上面的是Container呢？我们看下几个Container之间的关系</strong>：</li></ul><p><img src="/vitepress-blog-template/images/tomcat/tomcat-x-container-1.jpg" alt="error.图片加载失败"></p><p>从上图上，我们也可以看出Container顶层也是基于Lifecycle的组件设计的。</p><ul><li><strong>在设计Container组件层次组件时，上述4个组件分别做什么的呢？为什么要四种组件呢？</strong></li></ul><p>如下是Container接口类的相关注释</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span> * &lt;li&gt;&lt;b&gt;Engine&lt;/b&gt; - Representation of the entire Catalina servlet engine,</span></span>
+<span class="line"><span> *     most likely containing one or more subcontainers that are either Host</span></span>
+<span class="line"><span> *     or Context implementations, or other custom groups.</span></span>
+<span class="line"><span> * &lt;li&gt;&lt;b&gt;Host&lt;/b&gt; - Representation of a virtual host containing a number</span></span>
+<span class="line"><span> *     of Contexts.</span></span>
+<span class="line"><span> * &lt;li&gt;&lt;b&gt;Context&lt;/b&gt; - Representation of a single ServletContext, which will</span></span>
+<span class="line"><span> *     typically contain one or more Wrappers for the supported servlets.</span></span>
+<span class="line"><span> * &lt;li&gt;&lt;b&gt;Wrapper&lt;/b&gt; - Representation of an individual servlet definition</span></span>
+<span class="line"><span> *     (which may support multiple servlet instances if the servlet itself</span></span>
+<span class="line"><span> *     implements SingleThreadModel).</span></span>
+<span class="line"><span> * &lt;/ul&gt;</span></span></code></pre></div><p><strong>Engine</strong> - 表示整个catalina的servlet引擎，多数情况下包含<strong>一个或多个</strong>子容器，这些子容器要么是Host，要么是Context实现，或者是其他自定义组。</p><p><strong>Host</strong> - 表示包含多个Context的虚拟主机的。</p><p><strong>Context</strong> — 表示一个ServletContext，表示一个webapp，它通常包含一个或多个wrapper。</p><p><strong>Wrapper</strong> - 表示一个servlet定义的（如果servlet本身实现了SingleThreadModel，则可能支持多个servlet实例）。</p><ul><li><strong>结合整体的框架图中上述组件部分，我们看下包含了什么</strong>？</li></ul><p><img src="/vitepress-blog-template/images/tomcat/tomcat-x-container-3.png" alt="error.图片加载失败"></p><p>很明显，除了四个组件的嵌套关系，Container中还包含了Realm，Cluster，Listeners, Pipleline等支持组件。</p><p>这一点，还可以通过相关注释可以看出：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>**Loader** - Class loader to use for integrating new Java classes for this Container into the JVM in which Catalina is running.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>**Logger** - Implementation of the log() method signatures of the ServletContext interface.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>**Manager** - Manager for the pool of Sessions associated with this Container.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>**Realm** - Read-only interface to a security domain, for authenticating user identities and their corresponding roles.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>**Resources** - JNDI directory context enabling access to static resources, enabling custom linkages to existing server components when Catalina is embedded in a larger server.</span></span></code></pre></div><h2 id="container的设计" tabindex="-1">Container的设计 <a class="header-anchor" href="#container的设计" aria-label="Permalink to &quot;Container的设计&quot;">​</a></h2><blockquote><p>这container应该包含哪些接口呢？如果你看源代码它包含二十多个接口，这里理解的时候一定要分组去理解。</p></blockquote><h3 id="container的层次结构方法" tabindex="-1">Container的层次结构方法 <a class="header-anchor" href="#container的层次结构方法" aria-label="Permalink to &quot;Container的层次结构方法&quot;">​</a></h3><p>查找父容器的方法：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Get the parent container.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @return Return the Container for which this Container is a child, if</span></span>
+<span class="line"><span>  *         there is one. If there is no defined parent, return</span></span>
+<span class="line"><span>  *         &lt;code&gt;null&lt;/code&gt;.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public Container getParent();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Set the parent Container to which this Container is being added as a</span></span>
+<span class="line"><span>  * child.  This Container may refuse to become attached to the specified</span></span>
+<span class="line"><span>  * Container by throwing an exception.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param container Container to which this Container is being added</span></span>
+<span class="line"><span>  *  as a child</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @exception IllegalArgumentException if this Container refuses to become</span></span>
+<span class="line"><span>  *  attached to the specified Container</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public void setParent(Container container);</span></span></code></pre></div><p>由于Engine显然上层是Service，所以里面加了一个getService的方法</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Return the Service to which this container belongs.</span></span>
+<span class="line"><span>  * @param container The container to start from</span></span>
+<span class="line"><span>  * @return the Service, or null if not found</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public static Service getService(Container container) {</span></span>
+<span class="line"><span>    while (container != null &amp;&amp; !(container instanceof Engine)) {</span></span>
+<span class="line"><span>        container = container.getParent();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    if (container == null) {</span></span>
+<span class="line"><span>        return null;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    return ((Engine) container).getService();</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>类比树接口，有Parent方法，那肯定也child方法：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Add a new child Container to those associated with this Container,</span></span>
+<span class="line"><span>  * if supported.  Prior to adding this Container to the set of children,</span></span>
+<span class="line"><span>  * the child&#39;s &lt;code&gt;setParent()&lt;/code&gt; method must be called, with this</span></span>
+<span class="line"><span>  * Container as an argument.  This method may thrown an</span></span>
+<span class="line"><span>  * &lt;code&gt;IllegalArgumentException&lt;/code&gt; if this Container chooses not</span></span>
+<span class="line"><span>  * to be attached to the specified Container, in which case it is not added</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param child New child Container to be added</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @exception IllegalArgumentException if this exception is thrown by</span></span>
+<span class="line"><span>  *  the &lt;code&gt;setParent()&lt;/code&gt; method of the child Container</span></span>
+<span class="line"><span>  * @exception IllegalArgumentException if the new child does not have</span></span>
+<span class="line"><span>  *  a name unique from that of existing children of this Container</span></span>
+<span class="line"><span>  * @exception IllegalStateException if this Container does not support</span></span>
+<span class="line"><span>  *  child Containers</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public void addChild(Container child);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Obtain the child Containers associated with this Container.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @return An array containing all children of this container. If this</span></span>
+<span class="line"><span>  *         Container has no children, a zero-length array is returned.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public Container[] findChildren();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Remove an existing child Container from association with this parent</span></span>
+<span class="line"><span>  * Container.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param child Existing child Container to be removed</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public void removeChild(Container child);</span></span></code></pre></div><h3 id="container事件监听相关方法" tabindex="-1">Container事件监听相关方法 <a class="header-anchor" href="#container事件监听相关方法" aria-label="Permalink to &quot;Container事件监听相关方法&quot;">​</a></h3><p>前文我们也分析过Tomcat的事件监听机制，Container也是一样， 比如如下的ContainerListener</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Add a container event listener to this component.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param listener The listener to add</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public void addContainerListener(ContainerListener listener);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Obtain the container listeners associated with this Container.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @return An array containing the container listeners associated with this</span></span>
+<span class="line"><span>  *         Container. If this Container has no registered container</span></span>
+<span class="line"><span>  *         listeners, a zero-length array is returned.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public ContainerListener[] findContainerListeners();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Remove a container event listener from this component.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param listener The listener to remove</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public void removeContainerListener(ContainerListener listener);</span></span></code></pre></div><p>除了Container级别的，和前文我们理解的一样，还有属性相关的Listener, 显然就增删属性的监听方法</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Remove a property change listener from this component.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param listener The listener to remove</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public void removePropertyChangeListener(PropertyChangeListener listener);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Add a property change listener to this component.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param listener The listener to add</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public void addPropertyChangeListener(PropertyChangeListener listener);</span></span></code></pre></div><p>最后显然还有事件的触发方法</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Notify all container event listeners that a particular event has</span></span>
+<span class="line"><span>  * occurred for this Container.  The default implementation performs</span></span>
+<span class="line"><span>  * this notification synchronously using the calling thread.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param type Event type</span></span>
+<span class="line"><span>  * @param data Event data</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public void fireContainerEvent(String type, Object data);</span></span></code></pre></div><h3 id="container功能支撑方法" tabindex="-1">Container功能支撑方法 <a class="header-anchor" href="#container功能支撑方法" aria-label="Permalink to &quot;Container功能支撑方法&quot;">​</a></h3><p>前面我们知道，Loader, Logger, Manager, Realm, Resources等支撑功能。这里简单看下接口定义，相关基本实现看下节ContainerBase的实现。</p><ul><li>Loader</li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Get the parent class loader.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @return the parent class loader for this component. If not set, return</span></span>
+<span class="line"><span>  *         {@link #getParent()}.{@link #getParentClassLoader()}. If no</span></span>
+<span class="line"><span>  *         parent has been set, return the system class loader.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public ClassLoader getParentClassLoader();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Set the parent class loader for this component. For {@link Context}s</span></span>
+<span class="line"><span>  * this call is meaningful only &lt;strong&gt;before&lt;/strong&gt; a Loader has</span></span>
+<span class="line"><span>  * been configured, and the specified value (if non-null) should be</span></span>
+<span class="line"><span>  * passed as an argument to the class loader constructor.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param parent The new parent class loader</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public void setParentClassLoader(ClassLoader parent);</span></span></code></pre></div><ul><li>Logger</li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Obtain the log to which events for this container should be logged.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @return The Logger with which this Container is associated.  If there is</span></span>
+<span class="line"><span>  *         no associated Logger, return the Logger associated with the</span></span>
+<span class="line"><span>  *         parent Container (if any); otherwise return &lt;code&gt;null&lt;/code&gt;.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public Log getLogger();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Return the logger name that the container will use.</span></span>
+<span class="line"><span>  * @return the abbreviated name of this container for logging messages</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public String getLogName();</span></span></code></pre></div><ul><li>Manager</li></ul><p>体现在我们之前分析的JMX管理</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Obtain the JMX name for this container.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @return the JMX name associated with this container.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public ObjectName getObjectName();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Obtain the JMX domain under which this container will be / has been</span></span>
+<span class="line"><span>  * registered.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @return The JMX domain name</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public String getDomain();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Calculate the key properties string to be added to an object&#39;s</span></span>
+<span class="line"><span>  * {@link ObjectName} to indicate that it is associated with this container.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @return          A string suitable for appending to the ObjectName</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public String getMBeanKeyProperties();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Obtain the number of threads available for starting and stopping any</span></span>
+<span class="line"><span>  * children associated with this container. This allows start/stop calls to</span></span>
+<span class="line"><span>  * children to be processed in parallel.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @return The currently configured number of threads used to start/stop</span></span>
+<span class="line"><span>  *         children associated with this container</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public int getStartStopThreads();</span></span></code></pre></div><ul><li>Realm</li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Obtain the Realm with which this Container is associated.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @return The associated Realm; if there is no associated Realm, the</span></span>
+<span class="line"><span>  *         Realm associated with the parent Container (if any); otherwise</span></span>
+<span class="line"><span>  *         return &lt;code&gt;null&lt;/code&gt;.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public Realm getRealm();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Set the Realm with which this Container is associated.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param realm The newly associated Realm</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public void setRealm(Realm realm);</span></span></code></pre></div><ul><li>Cluster</li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Get the Cluster for this container.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @return The Cluster with which this Container is associated. If there is</span></span>
+<span class="line"><span>  *         no associated Cluster, return the Cluster associated with our</span></span>
+<span class="line"><span>  *         parent Container (if any); otherwise return &lt;code&gt;null&lt;/code&gt;.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public Cluster getCluster();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Set the Cluster with which this Container is associated.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param cluster the Cluster with which this Container is associated.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public void setCluster(Cluster cluster);</span></span></code></pre></div><ul><li>其它</li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Return a name string (suitable for use by humans) that describes this</span></span>
+<span class="line"><span>  * Container.  Within the set of child containers belonging to a particular</span></span>
+<span class="line"><span>  * parent, Container names must be unique.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @return The human readable name of this container.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public String getName();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Set a name string (suitable for use by humans) that describes this</span></span>
+<span class="line"><span>  * Container.  Within the set of child containers belonging to a particular</span></span>
+<span class="line"><span>  * parent, Container names must be unique.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param name New name of this container</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @exception IllegalStateException if this Container has already been</span></span>
+<span class="line"><span>  *  added to the children of a parent Container (after which the name</span></span>
+<span class="line"><span>  *  may not be changed)</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public void setName(String name);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Sets the number of threads available for starting and stopping any</span></span>
+<span class="line"><span>  * children associated with this container. This allows start/stop calls to</span></span>
+<span class="line"><span>  * children to be processed in parallel.</span></span>
+<span class="line"><span>  * @param   startStopThreads    The new number of threads to be used</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public void setStartStopThreads(int startStopThreads);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Obtain the location of CATALINA_BASE.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @return  The location of CATALINA_BASE.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public File getCatalinaBase();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Obtain the location of CATALINA_HOME.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @return The location of CATALINA_HOME.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>public File getCatalinaHome();</span></span></code></pre></div><h2 id="container基本实现-containerbase" tabindex="-1">Container基本实现：ContainerBase <a class="header-anchor" href="#container基本实现-containerbase" aria-label="Permalink to &quot;Container基本实现：ContainerBase&quot;">​</a></h2><blockquote><p>就讲讲几个比较核心的</p></blockquote><h3 id="logger" tabindex="-1">Logger <a class="header-anchor" href="#logger" aria-label="Permalink to &quot;Logger&quot;">​</a></h3><p>日志记录器，比较简单，直接看代码</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Return the Logger for this Container.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>public Log getLogger() {</span></span>
+<span class="line"><span>    if (logger != null)</span></span>
+<span class="line"><span>        return logger;</span></span>
+<span class="line"><span>    logger = LogFactory.getLog(getLogName());</span></span>
+<span class="line"><span>    return logger;</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * @return the abbreviated name of this container for logging messages</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>public String getLogName() {</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    if (logName != null) {</span></span>
+<span class="line"><span>        return logName;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    String loggerName = null;</span></span>
+<span class="line"><span>    Container current = this;</span></span>
+<span class="line"><span>    while (current != null) {</span></span>
+<span class="line"><span>        String name = current.getName();</span></span>
+<span class="line"><span>        if ((name == null) || (name.equals(&quot;&quot;))) {</span></span>
+<span class="line"><span>            name = &quot;/&quot;;</span></span>
+<span class="line"><span>        } else if (name.startsWith(&quot;##&quot;)) {</span></span>
+<span class="line"><span>            name = &quot;/&quot; + name;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>        loggerName = &quot;[&quot; + name + &quot;]&quot;</span></span>
+<span class="line"><span>            + ((loggerName != null) ? (&quot;.&quot; + loggerName) : &quot;&quot;);</span></span>
+<span class="line"><span>        current = current.getParent();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    logName = ContainerBase.class.getName() + &quot;.&quot; + loggerName;</span></span>
+<span class="line"><span>    return logName;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>}</span></span></code></pre></div><h3 id="cluster" tabindex="-1">Cluster <a class="header-anchor" href="#cluster" aria-label="Permalink to &quot;Cluster&quot;">​</a></h3><ul><li><code>getCluster</code>：读锁，获取子类的cluster，如果没有则返回父类的cluster；</li><li><code>getClusterInternal</code>: 读锁，获取子类的cluster</li><li><code>setCluster</code>: 写锁，设置container的cluster；由于cluster具备生命周期，所以需要对停止旧的cluster，启动新的cluster；设置成功后，再触发cluster变更事件。</li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * The cluster with which this Container is associated.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>protected Cluster cluster = null;</span></span>
+<span class="line"><span>private final ReadWriteLock clusterLock = new ReentrantReadWriteLock();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * The parent Container to which this Container is a child.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>protected Container parent = null;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Return the Cluster with which this Container is associated.  If there is</span></span>
+<span class="line"><span>  * no associated Cluster, return the Cluster associated with our parent</span></span>
+<span class="line"><span>  * Container (if any); otherwise return &lt;code&gt;null&lt;/code&gt;.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>public Cluster getCluster() {</span></span>
+<span class="line"><span>    Lock readLock = clusterLock.readLock();</span></span>
+<span class="line"><span>    readLock.lock();</span></span>
+<span class="line"><span>    try {</span></span>
+<span class="line"><span>        if (cluster != null)</span></span>
+<span class="line"><span>            return cluster;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        if (parent != null)</span></span>
+<span class="line"><span>            return parent.getCluster();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        return null;</span></span>
+<span class="line"><span>    } finally {</span></span>
+<span class="line"><span>        readLock.unlock();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/*</span></span>
+<span class="line"><span>  * Provide access to just the cluster component attached to this container.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>protected Cluster getClusterInternal() {</span></span>
+<span class="line"><span>    Lock readLock = clusterLock.readLock();</span></span>
+<span class="line"><span>    readLock.lock();</span></span>
+<span class="line"><span>    try {</span></span>
+<span class="line"><span>        return cluster;</span></span>
+<span class="line"><span>    } finally {</span></span>
+<span class="line"><span>        readLock.unlock();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Set the Cluster with which this Container is associated.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param cluster The newly associated Cluster</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>public void setCluster(Cluster cluster) {</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    Cluster oldCluster = null;</span></span>
+<span class="line"><span>    Lock writeLock = clusterLock.writeLock();</span></span>
+<span class="line"><span>    writeLock.lock();</span></span>
+<span class="line"><span>    try {</span></span>
+<span class="line"><span>        // Change components if necessary</span></span>
+<span class="line"><span>        oldCluster = this.cluster;</span></span>
+<span class="line"><span>        if (oldCluster == cluster)</span></span>
+<span class="line"><span>            return;</span></span>
+<span class="line"><span>        this.cluster = cluster;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        // Stop the old component if necessary</span></span>
+<span class="line"><span>        if (getState().isAvailable() &amp;&amp; (oldCluster != null) &amp;&amp;</span></span>
+<span class="line"><span>            (oldCluster instanceof Lifecycle)) {</span></span>
+<span class="line"><span>            try {</span></span>
+<span class="line"><span>                ((Lifecycle) oldCluster).stop();</span></span>
+<span class="line"><span>            } catch (LifecycleException e) {</span></span>
+<span class="line"><span>                log.error(sm.getString(&quot;containerBase.cluster.stop&quot;), e);</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        // Start the new component if necessary</span></span>
+<span class="line"><span>        if (cluster != null)</span></span>
+<span class="line"><span>            cluster.setContainer(this);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        if (getState().isAvailable() &amp;&amp; (cluster != null) &amp;&amp;</span></span>
+<span class="line"><span>            (cluster instanceof Lifecycle)) {</span></span>
+<span class="line"><span>            try {</span></span>
+<span class="line"><span>                ((Lifecycle) cluster).start();</span></span>
+<span class="line"><span>            } catch (LifecycleException e) {</span></span>
+<span class="line"><span>                log.error(sm.getString(&quot;containerBase.cluster.start&quot;), e);</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>    } finally {</span></span>
+<span class="line"><span>        writeLock.unlock();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // Report this property change to interested listeners</span></span>
+<span class="line"><span>    support.firePropertyChange(&quot;cluster&quot;, oldCluster, cluster);</span></span>
+<span class="line"><span>}</span></span></code></pre></div><h3 id="realm" tabindex="-1">Realm <a class="header-anchor" href="#realm" aria-label="Permalink to &quot;Realm&quot;">​</a></h3><p>Realm和上面的Cluster方法基本一致。</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span> * Return the Realm with which this Container is associated.  If there is</span></span>
+<span class="line"><span> * no associated Realm, return the Realm associated with our parent</span></span>
+<span class="line"><span> * Container (if any); otherwise return &lt;code&gt;null&lt;/code&gt;.</span></span>
+<span class="line"><span> */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>public Realm getRealm() {</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    Lock l = realmLock.readLock();</span></span>
+<span class="line"><span>    l.lock();</span></span>
+<span class="line"><span>    try {</span></span>
+<span class="line"><span>        if (realm != null)</span></span>
+<span class="line"><span>            return realm;</span></span>
+<span class="line"><span>        if (parent != null)</span></span>
+<span class="line"><span>            return parent.getRealm();</span></span>
+<span class="line"><span>        return null;</span></span>
+<span class="line"><span>    } finally {</span></span>
+<span class="line"><span>        l.unlock();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>protected Realm getRealmInternal() {</span></span>
+<span class="line"><span>    Lock l = realmLock.readLock();</span></span>
+<span class="line"><span>    l.lock();</span></span>
+<span class="line"><span>    try {</span></span>
+<span class="line"><span>        return realm;</span></span>
+<span class="line"><span>    } finally {</span></span>
+<span class="line"><span>        l.unlock();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span> * Set the Realm with which this Container is associated.</span></span>
+<span class="line"><span> *</span></span>
+<span class="line"><span> * @param realm The newly associated Realm</span></span>
+<span class="line"><span> */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>public void setRealm(Realm realm) {</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    Lock l = realmLock.writeLock();</span></span>
+<span class="line"><span>    l.lock();</span></span>
+<span class="line"><span>    try {</span></span>
+<span class="line"><span>        // Change components if necessary</span></span>
+<span class="line"><span>        Realm oldRealm = this.realm;</span></span>
+<span class="line"><span>        if (oldRealm == realm)</span></span>
+<span class="line"><span>            return;</span></span>
+<span class="line"><span>        this.realm = realm;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        // Stop the old component if necessary</span></span>
+<span class="line"><span>        if (getState().isAvailable() &amp;&amp; (oldRealm != null) &amp;&amp;</span></span>
+<span class="line"><span>            (oldRealm instanceof Lifecycle)) {</span></span>
+<span class="line"><span>            try {</span></span>
+<span class="line"><span>                ((Lifecycle) oldRealm).stop();</span></span>
+<span class="line"><span>            } catch (LifecycleException e) {</span></span>
+<span class="line"><span>                log.error(sm.getString(&quot;containerBase.realm.stop&quot;), e);</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        // Start the new component if necessary</span></span>
+<span class="line"><span>        if (realm != null)</span></span>
+<span class="line"><span>            realm.setContainer(this);</span></span>
+<span class="line"><span>        if (getState().isAvailable() &amp;&amp; (realm != null) &amp;&amp;</span></span>
+<span class="line"><span>            (realm instanceof Lifecycle)) {</span></span>
+<span class="line"><span>            try {</span></span>
+<span class="line"><span>                ((Lifecycle) realm).start();</span></span>
+<span class="line"><span>            } catch (LifecycleException e) {</span></span>
+<span class="line"><span>                log.error(sm.getString(&quot;containerBase.realm.start&quot;), e);</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        // Report this property change to interested listeners</span></span>
+<span class="line"><span>        support.firePropertyChange(&quot;realm&quot;, oldRealm, this.realm);</span></span>
+<span class="line"><span>    } finally {</span></span>
+<span class="line"><span>        l.unlock();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><h3 id="name等属性" tabindex="-1">name等属性 <a class="header-anchor" href="#name等属性" aria-label="Permalink to &quot;name等属性&quot;">​</a></h3><p>此类属性改变时触发属性变更事件，比如name是容器的名字，name变更会触发name变更事件。</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * The human-readable name of this Container.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>protected String name = null;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Return a name string (suitable for use by humans) that describes this</span></span>
+<span class="line"><span>  * Container.  Within the set of child containers belonging to a particular</span></span>
+<span class="line"><span>  * parent, Container names must be unique.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>public String getName() {</span></span>
+<span class="line"><span>    return name;</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Set a name string (suitable for use by humans) that describes this</span></span>
+<span class="line"><span>  * Container.  Within the set of child containers belonging to a particular</span></span>
+<span class="line"><span>  * parent, Container names must be unique.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param name New name of this container</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @exception IllegalStateException if this Container has already been</span></span>
+<span class="line"><span>  *  added to the children of a parent Container (after which the name</span></span>
+<span class="line"><span>  *  may not be changed)</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>public void setName(String name) {</span></span>
+<span class="line"><span>    if (name == null) {</span></span>
+<span class="line"><span>        throw new IllegalArgumentException(sm.getString(&quot;containerBase.nullName&quot;));</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    String oldName = this.name;</span></span>
+<span class="line"><span>    this.name = name;</span></span>
+<span class="line"><span>    support.firePropertyChange(&quot;name&quot;, oldName, this.name);</span></span>
+<span class="line"><span>}</span></span></code></pre></div><h3 id="child相关" tabindex="-1">child相关 <a class="header-anchor" href="#child相关" aria-label="Permalink to &quot;child相关&quot;">​</a></h3><p>添加子容器</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Add a new child Container to those associated with this Container,</span></span>
+<span class="line"><span>  * if supported.  Prior to adding this Container to the set of children,</span></span>
+<span class="line"><span>  * the child&#39;s &lt;code&gt;setParent()&lt;/code&gt; method must be called, with this</span></span>
+<span class="line"><span>  * Container as an argument.  This method may thrown an</span></span>
+<span class="line"><span>  * &lt;code&gt;IllegalArgumentException&lt;/code&gt; if this Container chooses not</span></span>
+<span class="line"><span>  * to be attached to the specified Container, in which case it is not added</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param child New child Container to be added</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @exception IllegalArgumentException if this exception is thrown by</span></span>
+<span class="line"><span>  *  the &lt;code&gt;setParent()&lt;/code&gt; method of the child Container</span></span>
+<span class="line"><span>  * @exception IllegalArgumentException if the new child does not have</span></span>
+<span class="line"><span>  *  a name unique from that of existing children of this Container</span></span>
+<span class="line"><span>  * @exception IllegalStateException if this Container does not support</span></span>
+<span class="line"><span>  *  child Containers</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>public void addChild(Container child) {</span></span>
+<span class="line"><span>    if (Globals.IS_SECURITY_ENABLED) {</span></span>
+<span class="line"><span>        PrivilegedAction&lt;Void&gt; dp =</span></span>
+<span class="line"><span>            new PrivilegedAddChild(child);</span></span>
+<span class="line"><span>        AccessController.doPrivileged(dp);</span></span>
+<span class="line"><span>    } else {</span></span>
+<span class="line"><span>        addChildInternal(child);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>private void addChildInternal(Container child) {</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    if (log.isDebugEnabled()) {</span></span>
+<span class="line"><span>        log.debug(&quot;Add child &quot; + child + &quot; &quot; + this);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    synchronized(children) {</span></span>
+<span class="line"><span>        if (children.get(child.getName()) != null)</span></span>
+<span class="line"><span>            throw new IllegalArgumentException(</span></span>
+<span class="line"><span>                    sm.getString(&quot;containerBase.child.notUnique&quot;, child.getName()));</span></span>
+<span class="line"><span>        child.setParent(this);  // May throw IAE 设置父容器</span></span>
+<span class="line"><span>        children.put(child.getName(), child); // 使用map,方便通过name查找子容器</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    fireContainerEvent(ADD_CHILD_EVENT, child); // 触发添加子容器的事件</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // Start child // 注意下这里，没有将start方法放到synchronized的原因</span></span>
+<span class="line"><span>    // Don&#39;t do this inside sync block - start can be a slow process and</span></span>
+<span class="line"><span>    // locking the children object can cause problems elsewhere</span></span>
+<span class="line"><span>    try {</span></span>
+<span class="line"><span>        if ((getState().isAvailable() ||</span></span>
+<span class="line"><span>                LifecycleState.STARTING_PREP.equals(getState())) &amp;&amp;</span></span>
+<span class="line"><span>                startChildren) {</span></span>
+<span class="line"><span>            child.start();</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>    } catch (LifecycleException e) {</span></span>
+<span class="line"><span>        throw new IllegalStateException(sm.getString(&quot;containerBase.child.start&quot;), e);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>查找子容器</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Return the child Container, associated with this Container, with</span></span>
+<span class="line"><span>  * the specified name (if any); otherwise, return &lt;code&gt;null&lt;/code&gt;</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param name Name of the child Container to be retrieved</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>public Container findChild(String name) {</span></span>
+<span class="line"><span>    if (name == null) {</span></span>
+<span class="line"><span>        return null;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    synchronized (children) {</span></span>
+<span class="line"><span>        return children.get(name);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Return the set of children Containers associated with this Container.</span></span>
+<span class="line"><span>  * If this Container has no children, a zero-length array is returned.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>public Container[] findChildren() {</span></span>
+<span class="line"><span>    synchronized (children) {</span></span>
+<span class="line"><span>        Container results[] = new Container[children.size()];</span></span>
+<span class="line"><span>        return children.values().toArray(results);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><ul><li>删除子容器</li></ul><p>子容器有生命周期，所以应该是先停止，然后销毁（distroy), 再触发删除事件，最后将children中子容器删除。</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Remove an existing child Container from association with this parent</span></span>
+<span class="line"><span>  * Container.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param child Existing child Container to be removed</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>public void removeChild(Container child) {</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    if (child == null) {</span></span>
+<span class="line"><span>        return;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    try {</span></span>
+<span class="line"><span>        if (child.getState().isAvailable()) {</span></span>
+<span class="line"><span>            child.stop();</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>    } catch (LifecycleException e) {</span></span>
+<span class="line"><span>        log.error(sm.getString(&quot;containerBase.child.stop&quot;), e);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    boolean destroy = false;</span></span>
+<span class="line"><span>    try {</span></span>
+<span class="line"><span>        // child.destroy() may have already been called which would have</span></span>
+<span class="line"><span>        // triggered this call. If that is the case, no need to destroy the</span></span>
+<span class="line"><span>        // child again.</span></span>
+<span class="line"><span>        if (!LifecycleState.DESTROYING.equals(child.getState())) {</span></span>
+<span class="line"><span>            child.destroy();</span></span>
+<span class="line"><span>            destroy = true;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>    } catch (LifecycleException e) {</span></span>
+<span class="line"><span>        log.error(sm.getString(&quot;containerBase.child.destroy&quot;), e);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    if (!destroy) {</span></span>
+<span class="line"><span>        fireContainerEvent(REMOVE_CHILD_EVENT, child);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    synchronized(children) {</span></span>
+<span class="line"><span>        if (children.get(child.getName()) == null)</span></span>
+<span class="line"><span>            return;</span></span>
+<span class="line"><span>        children.remove(child.getName());</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>}</span></span></code></pre></div><h3 id="lifecycle的模板方法" tabindex="-1">Lifecycle的模板方法 <a class="header-anchor" href="#lifecycle的模板方法" aria-label="Permalink to &quot;Lifecycle的模板方法&quot;">​</a></h3><ul><li><strong>initInternal</strong></li></ul><p>startStopThreads 默认为 1 ，所以 reconfigureStartStopExecutor 方法会走 if 语句，而 startStopExecutor 最开始是没有赋值的，startStopExecutor instanceof InlineExecutorService 会返回 false，因此最终会执行 startStopExecutor = new InlineExecutorService()，InlineExecutorService 只是简单地实现了 java.util.concurrent.AbstractExecutorService 类。 最终 reconfigureStartStopExecutor 给 startStopExecutor 这个成员变量设置了，startStopExecutor。</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * The number of threads available to process start and stop events for any</span></span>
+<span class="line"><span>  * children associated with this container.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>private int startStopThreads = 1;</span></span>
+<span class="line"><span>protected ExecutorService startStopExecutor;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>protected void initInternal() throws LifecycleException {</span></span>
+<span class="line"><span>    reconfigureStartStopExecutor(getStartStopThreads()); // 设置一个线程池来处理子容器启动和关闭事件</span></span>
+<span class="line"><span>    super.initInternal(); // 调用LifecycleMBeanBase的方法</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>private void reconfigureStartStopExecutor(int threads) {</span></span>
+<span class="line"><span>    if (threads == 1) {</span></span>
+<span class="line"><span>        // Use a fake executor</span></span>
+<span class="line"><span>        if (!(startStopExecutor instanceof InlineExecutorService)) {</span></span>
+<span class="line"><span>            startStopExecutor = new InlineExecutorService(); // 执行这里</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>    } else {</span></span>
+<span class="line"><span>        // Delegate utility execution to the Service</span></span>
+<span class="line"><span>        Server server = Container.getService(this).getServer();</span></span>
+<span class="line"><span>        server.setUtilityThreads(threads);</span></span>
+<span class="line"><span>        startStopExecutor = server.getUtilityExecutor();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><ul><li><strong>startInternal</strong></li></ul><p>试想，container中有很多组件，而且属于Lifecycle生命周期管理；那么启动容器的时候，必然是逐个将这些子组件（包括子容器）启动起来。</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Start this component and implement the requirements</span></span>
+<span class="line"><span>  * of {@link org.apache.catalina.util.LifecycleBase#startInternal()}.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @exception LifecycleException if this component detects a fatal error</span></span>
+<span class="line"><span>  *  that prevents this component from being used</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>protected synchronized void startInternal() throws LifecycleException {</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // Start our subordinate components, if any</span></span>
+<span class="line"><span>    logger = null;</span></span>
+<span class="line"><span>    getLogger();</span></span>
+<span class="line"><span>    Cluster cluster = getClusterInternal();</span></span>
+<span class="line"><span>    if (cluster instanceof Lifecycle) {</span></span>
+<span class="line"><span>        ((Lifecycle) cluster).start();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    Realm realm = getRealmInternal();</span></span>
+<span class="line"><span>    if (realm instanceof Lifecycle) {</span></span>
+<span class="line"><span>        ((Lifecycle) realm).start();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // Start our child containers, if any</span></span>
+<span class="line"><span>    Container children[] = findChildren();</span></span>
+<span class="line"><span>    List&lt;Future&lt;Void&gt;&gt; results = new ArrayList&lt;&gt;();</span></span>
+<span class="line"><span>    for (Container child : children) {</span></span>
+<span class="line"><span>        results.add(startStopExecutor.submit(new StartChild(child)));</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    MultiThrowable multiThrowable = null; // 引入一个MultiThrowable，来收集多个异常</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    for (Future&lt;Void&gt; result : results) {</span></span>
+<span class="line"><span>        try {</span></span>
+<span class="line"><span>            result.get();</span></span>
+<span class="line"><span>        } catch (Throwable e) {</span></span>
+<span class="line"><span>            log.error(sm.getString(&quot;containerBase.threadedStartFailed&quot;), e);</span></span>
+<span class="line"><span>            if (multiThrowable == null) {</span></span>
+<span class="line"><span>                multiThrowable = new MultiThrowable();</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>            multiThrowable.add(e);</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    if (multiThrowable != null) {</span></span>
+<span class="line"><span>        throw new LifecycleException(sm.getString(&quot;containerBase.threadedStartFailed&quot;),</span></span>
+<span class="line"><span>                multiThrowable.getThrowable());</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // Start the Valves in our pipeline (including the basic), if any</span></span>
+<span class="line"><span>    if (pipeline instanceof Lifecycle) {</span></span>
+<span class="line"><span>        ((Lifecycle) pipeline).start();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    setState(LifecycleState.STARTING);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 看这个，本质是调用最上层server的utilityExecutorWrapper 线程池去执行 ContainerBackgroundProcessorMonitor 任务</span></span>
+<span class="line"><span>    if (backgroundProcessorDelay &gt; 0) {</span></span>
+<span class="line"><span>        monitorFuture = Container.getService(ContainerBase.this).getServer()</span></span>
+<span class="line"><span>                .getUtilityExecutor().scheduleWithFixedDelay(</span></span>
+<span class="line"><span>                        new ContainerBackgroundProcessorMonitor(), 0, 60, TimeUnit.SECONDS);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><ul><li><strong>stopInternal</strong></li></ul><p>和initInternal初始化子组件方式倒过来，逐一停止子组件，并触发相关事件。</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span>  * Stop this component and implement the requirements</span></span>
+<span class="line"><span>  * of {@link org.apache.catalina.util.LifecycleBase#stopInternal()}.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @exception LifecycleException if this component detects a fatal error</span></span>
+<span class="line"><span>  *  that prevents this component from being used</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>protected synchronized void stopInternal() throws LifecycleException {</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // Stop our thread</span></span>
+<span class="line"><span>    if (monitorFuture != null) {</span></span>
+<span class="line"><span>        monitorFuture.cancel(true);</span></span>
+<span class="line"><span>        monitorFuture = null;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    threadStop();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    setState(LifecycleState.STOPPING);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // Stop the Valves in our pipeline (including the basic), if any</span></span>
+<span class="line"><span>    if (pipeline instanceof Lifecycle &amp;&amp;</span></span>
+<span class="line"><span>            ((Lifecycle) pipeline).getState().isAvailable()) {</span></span>
+<span class="line"><span>        ((Lifecycle) pipeline).stop();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // Stop our child containers, if any</span></span>
+<span class="line"><span>    Container children[] = findChildren();</span></span>
+<span class="line"><span>    List&lt;Future&lt;Void&gt;&gt; results = new ArrayList&lt;&gt;();</span></span>
+<span class="line"><span>    for (Container child : children) {</span></span>
+<span class="line"><span>        results.add(startStopExecutor.submit(new StopChild(child)));</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    boolean fail = false;</span></span>
+<span class="line"><span>    for (Future&lt;Void&gt; result : results) {</span></span>
+<span class="line"><span>        try {</span></span>
+<span class="line"><span>            result.get();</span></span>
+<span class="line"><span>        } catch (Exception e) {</span></span>
+<span class="line"><span>            log.error(sm.getString(&quot;containerBase.threadedStopFailed&quot;), e);</span></span>
+<span class="line"><span>            fail = true;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    if (fail) {</span></span>
+<span class="line"><span>        throw new LifecycleException(</span></span>
+<span class="line"><span>                sm.getString(&quot;containerBase.threadedStopFailed&quot;));</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // Stop our subordinate components, if any</span></span>
+<span class="line"><span>    Realm realm = getRealmInternal();</span></span>
+<span class="line"><span>    if (realm instanceof Lifecycle) {</span></span>
+<span class="line"><span>        ((Lifecycle) realm).stop();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    Cluster cluster = getClusterInternal();</span></span>
+<span class="line"><span>    if (cluster instanceof Lifecycle) {</span></span>
+<span class="line"><span>        ((Lifecycle) cluster).stop();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><ul><li><strong>destroyInternal</strong></li></ul><p>对比下initInternal，它初始化了什么就destory什么</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>@Override</span></span>
+<span class="line"><span>protected void destroyInternal() throws LifecycleException {</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    Realm realm = getRealmInternal();</span></span>
+<span class="line"><span>    if (realm instanceof Lifecycle) {</span></span>
+<span class="line"><span>        ((Lifecycle) realm).destroy();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    Cluster cluster = getClusterInternal();</span></span>
+<span class="line"><span>    if (cluster instanceof Lifecycle) {</span></span>
+<span class="line"><span>        ((Lifecycle) cluster).destroy();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // Stop the Valves in our pipeline (including the basic), if any</span></span>
+<span class="line"><span>    if (pipeline instanceof Lifecycle) {</span></span>
+<span class="line"><span>        ((Lifecycle) pipeline).destroy();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // Remove children now this container is being destroyed</span></span>
+<span class="line"><span>    for (Container child : findChildren()) {</span></span>
+<span class="line"><span>        removeChild(child);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // Required if the child is destroyed directly.</span></span>
+<span class="line"><span>    if (parent != null) {</span></span>
+<span class="line"><span>        parent.removeChild(this);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // If init fails, this may be null</span></span>
+<span class="line"><span>    if (startStopExecutor != null) {</span></span>
+<span class="line"><span>        startStopExecutor.shutdownNow();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    super.destroyInternal(); // 调用LifecycleMBeanBase的方法</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>本文转自 <a href="https://pdai.tech" target="_blank" rel="noreferrer">https://pdai.tech</a>，如有侵权，请联系删除。</p></div></div></main><footer class="VPDocFooter" data-v-39a288b8 data-v-e257564d><!--[--><!--[--><!--[--><!--[--><div style="" class="vitepress-backTop-main" title="返回顶部" data-v-69be28d1><svg t="1720595052079" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4279" width="200" height="200" data-v-69be28d1><path d="M752.736 431.063C757.159 140.575 520.41 8.97 504.518 0.41V0l-0.45 0.205-0.41-0.205v0.41c-15.934 8.56-252.723 140.165-248.259 430.653-48.21 31.457-98.713 87.368-90.685 184.074 8.028 96.666 101.007 160.768 136.601 157.287 35.595-3.482 25.232-30.31 25.232-30.31l12.206-50.095s52.47 80.569 69.304 80.528c15.114-1.23 87-0.123 95.6 0h0.82c8.602-0.123 80.486-1.23 95.6 0 16.794 0 69.305-80.528 69.305-80.528l12.165 50.094s-10.322 26.83 25.272 30.31c35.595 3.482 128.574-60.62 136.602-157.286 8.028-96.665-42.475-152.617-90.685-184.074z m-248.669-4.26c-6.758-0.123-94.781-3.359-102.891-107.192 2.95-98.714 95.97-107.438 102.891-107.93 6.964 0.492 99.943 9.216 102.892 107.93-8.11 103.833-96.174 107.07-102.892 107.192z m-52.019 500.531c0 11.838-9.42 21.382-21.012 21.382a21.217 21.217 0 0 1-21.054-21.34V821.74c0-11.797 9.421-21.382 21.054-21.382 11.591 0 21.012 9.585 21.012 21.382v105.635z m77.333 57.222a21.504 21.504 0 0 1-21.34 21.626 21.504 21.504 0 0 1-21.34-21.626V827.474c0-11.96 9.543-21.668 21.299-21.668 11.796 0 21.38 9.708 21.38 21.668v157.082z m71.147-82.043c0 11.796-9.42 21.34-21.053 21.34a21.217 21.217 0 0 1-21.013-21.34v-75.367c0-11.755 9.421-21.299 21.013-21.299 11.632 0 21.053 9.544 21.053 21.3v75.366z" fill="#FFF" p-id="4280" data-v-69be28d1></path></svg></div><!--]--><!--]--><!--]--><!--]--><div class="edit-info" data-v-e257564d><!----><div class="last-updated" data-v-e257564d><p class="VPLastUpdated" data-v-e257564d data-v-e98dd255>最后更新于: <time datetime="2025-01-24T08:12:26.000Z" data-v-e98dd255></time></p></div></div><nav class="prev-next" aria-labelledby="doc-footer-aria-label" data-v-e257564d><span class="visually-hidden" id="doc-footer-aria-label" data-v-e257564d>Pager</span><div class="pager" data-v-e257564d><a class="VPLink link pager-link prev" href="/vitepress-blog-template/framework/tomcat/tomcat-x-executor" data-v-e257564d><!--[--><span class="desc" data-v-e257564d>上一页</span><span class="title" data-v-e257564d> Tomcat - 线程池的设计与实现：StandardThreadExecutor </span><!--]--></a></div><div class="pager" data-v-e257564d><a class="VPLink link pager-link next" href="/vitepress-blog-template/framework/tomcat/tomcat-x-container-engine" data-v-e257564d><!--[--><span class="desc" data-v-e257564d>下一页</span><span class="title" data-v-e257564d> Tomcat - Container容器之Engine：StandardEngine </span><!--]--></a></div></nav></footer><!--[--><!--[--><!--[--><div style="margin-top:24px;"><!----></div><!--]--><!--]--><!--]--></div></div></div><!--[--><!--]--></div></div><footer class="VPFooter has-sidebar" data-v-5d98c3a5 data-v-e315a0ad><div class="container" data-v-e315a0ad><p class="message" data-v-e315a0ad>Released under the MIT License.</p><p class="copyright" data-v-e315a0ad>Copyright © 2024-2025 lz</p></div></footer><!--[--><!--]--></div></div>
+    
+    
+  </body>
+</html>

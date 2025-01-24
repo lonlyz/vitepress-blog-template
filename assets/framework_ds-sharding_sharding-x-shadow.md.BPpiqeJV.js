@@ -1,0 +1,85 @@
+import{_ as s}from"./chunks/sharding-x-shard-2.CWh4sJV8.js";import{_ as n,c as p,ai as e,o as i}from"./chunks/framework.BrYByd3F.js";const l="/vitepress-blog-template/images/shardingsphere/sharding-x-shadow-1.png",m=JSON.parse('{"title":"ShardingSphere详解 - 通过影子库进行压测","description":"","frontmatter":{},"headers":[],"relativePath":"framework/ds-sharding/sharding-x-shadow.md","filePath":"framework/ds-sharding/sharding-x-shadow.md","lastUpdated":1737706346000}'),t={name:"framework/ds-sharding/sharding-x-shadow.md"};function o(r,a,d,c,h,u){return i(),p("div",null,a[0]||(a[0]=[e('<h1 id="shardingsphere详解-通过影子库进行压测" tabindex="-1">ShardingSphere详解 - 通过影子库进行压测 <a class="header-anchor" href="#shardingsphere详解-通过影子库进行压测" aria-label="Permalink to &quot;ShardingSphere详解 - 通过影子库进行压测&quot;">​</a></h1><blockquote><p>Apache ShardingSphere 关注于全链路压测场景下，数据库层面的解决方案。 将压测数据自动路由至用户指定的数据库，是 Apache ShardingSphere 影子库模块的主要设计目标; 这篇文章主要转载自<a href="https://shardingsphere.apache.org/document/5.1.0/cn/reference/shadow" target="_blank" rel="noreferrer">ShardingSphere官方在新窗口打开</a>网站（V5.1.0版本）。@pdai</p></blockquote><h2 id="背景" tabindex="-1">背景 <a class="header-anchor" href="#背景" aria-label="Permalink to &quot;背景&quot;">​</a></h2><blockquote><p>Apache ShardingSphere 关注于全链路压测场景下，数据库层面的解决方案。 将压测数据自动路由至用户指定的数据库，是 Apache ShardingSphere 影子库模块的主要设计目标。</p></blockquote><p>在基于微服务的分布式应用架构下，业务需要多个服务是通过一系列的服务、中间件的调用来完成，所以单个服务的压力测试已无法代表真实场景。 在测试环境中，如果重新搭建一整套与生产环境类似的压测环境，成本过高，并且往往无法模拟线上环境的复杂度以及流量。 因此，业内通常选择全链路压测的方式，即在生产环境进行压测，这样所获得的测试结果能够准确地反应系统真实容量和性能水平。</p><p><strong>挑战</strong></p><p>全链路压测是一项复杂而庞大的工作。 需要各个微服务、中间件之间配合与调整，以应对不同流量以及压测标识的透传。 通常会搭建一整套压测平台以适用不同测试计划。 在数据库层面需要做好数据隔离，为了保证生产数据的可靠性与完整性，需要将压测产生的数据路由到压测环境数据库，防止压测数据对生产数据库中真实数据造成污染。 这就要求业务应用在执行 SQL 前，能够根据透传的压测标识，做好数据分类，将相应的 SQL 路由到与之对应的数据源。</p><h2 id="整体架构" tabindex="-1">整体架构 <a class="header-anchor" href="#整体架构" aria-label="Permalink to &quot;整体架构&quot;">​</a></h2><p>Apache ShardingSphere 通过解析 SQL，对传入的 SQL 进行影子判定，根据配置文件中用户设置的影子规则，路由到生产库或者影子库。</p><p><img src="'+l+'" alt="error.图片加载失败"></p><h2 id="影子规则" tabindex="-1">影子规则 <a class="header-anchor" href="#影子规则" aria-label="Permalink to &quot;影子规则&quot;">​</a></h2><p>影子规则包含影子数据源映射关系，影子表以及影子算法。</p><p><img src="'+s+`" alt="error.图片加载失败"></p><ul><li><p><strong>影子库映射</strong>：生产数据源名称和影子数据源名称映射关系。</p></li><li><p><strong>影子表</strong>：压测相关的影子表。影子表必须存在于指定的影子库中，并且需要指定影子算法。</p></li><li><p><strong>影子算法</strong>：SQL 路由影子算法。</p></li><li><p><strong>默认影子算法</strong>：默认影子算法。选配项，对于没有配置影子算法表的默认匹配算法。</p></li></ul><h2 id="路由过程" tabindex="-1">路由过程 <a class="header-anchor" href="#路由过程" aria-label="Permalink to &quot;路由过程&quot;">​</a></h2><p>以 INSERT 语句为例，在写入数据时，Apache ShardingSphere 会对 SQL 进行解析，再根据配置文件中的规则，构造一条路由链。在当前版本的功能中， 影子功能处于路由链中的最后一个执行单元，即，如果有其他需要路由的规则存在，如分片，Apache ShardingSphere 会首先根据分片规则，路由到某一个数据库，再 执行影子路由判定流程，判定执行SQL满足影子规则的配置，数据路由到与之对应的影子库，生产数据则维持不变。</p><h2 id="影子判定流程" tabindex="-1">影子判定流程 <a class="header-anchor" href="#影子判定流程" aria-label="Permalink to &quot;影子判定流程&quot;">​</a></h2><blockquote><p>影子库功能对执行的 SQL 语句进行影子判定。影子判定支持两种类型算法，用户可根据实际业务需求选择一种或者组合使用。</p></blockquote><h3 id="dml-语句" tabindex="-1">DML 语句 <a class="header-anchor" href="#dml-语句" aria-label="Permalink to &quot;DML 语句&quot;">​</a></h3><p>支持两种算法。影子判定会首先判断执行 SQL 相关表与配置的影子表是否有交集。如果有交集，依次判定交集部分影子表关联的影子算法，有任何一个判定成功。SQL 语句路由到影子库。 影子表没有交集或者影子算法判定不成功，SQL 语句路由到生产库。</p><h3 id="ddl-语句" tabindex="-1">DDL 语句 <a class="header-anchor" href="#ddl-语句" aria-label="Permalink to &quot;DDL 语句&quot;">​</a></h3><p>仅支持注解影子算法。在压测场景下，DDL 语句一般不需要测试。主要在初始化或者修改影子库中影子表时使用。</p><p>影子判定会首先判断执行 SQL 是否包含注解。如果包含注解，影子规则中配置的 HINT 影子算法依次判定。有任何一个判定成功。SQL 语句路由到影子库。 执行 SQL 不包含注解或者 HINT 影子算法判定不成功，SQL 语句路由到生产库。</p><h2 id="影子算法" tabindex="-1">影子算法 <a class="header-anchor" href="#影子算法" aria-label="Permalink to &quot;影子算法&quot;">​</a></h2><p>影子算法详情，请参见<a href="https://shardingsphere.apache.org/document/5.1.0/cn/user-manual/shardingsphere-jdbc/builtin-algorithm/shadow/" target="_blank" rel="noreferrer">内置影子算法列表在新窗口打开</a></p><h2 id="使用案例" tabindex="-1">使用案例 <a class="header-anchor" href="#使用案例" aria-label="Permalink to &quot;使用案例&quot;">​</a></h2><h3 id="场景需求" tabindex="-1">场景需求 <a class="header-anchor" href="#场景需求" aria-label="Permalink to &quot;场景需求&quot;">​</a></h3><p>假设一个电商网站要对下单业务进行压测。压测相关表 t_order 为影子表，生产数据执行到 ds 生产数据库，压测数据执行到数据库 ds_shadow 影子库。</p><h3 id="影子库配置" tabindex="-1">影子库配置 <a class="header-anchor" href="#影子库配置" aria-label="Permalink to &quot;影子库配置&quot;">​</a></h3><p>建议配置如下（YAML 格式展示）：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>data-sources:</span></span>
+<span class="line"><span>  shadow-data-source:</span></span>
+<span class="line"><span>    source-data-source-name: ds</span></span>
+<span class="line"><span>    shadow-data-source-name: ds-shadow</span></span>
+<span class="line"><span>tables:</span></span>
+<span class="line"><span>  t_order:</span></span>
+<span class="line"><span>    data-source-names: shadow-data-source</span></span>
+<span class="line"><span>    shadow-algorithm-names:</span></span>
+<span class="line"><span>      - simple-hint-algorithm</span></span>
+<span class="line"><span>      - user-id-value-match-algorithm</span></span>
+<span class="line"><span>shadow-algorithms:</span></span>
+<span class="line"><span>  simple-hint-algorithm:</span></span>
+<span class="line"><span>    type: SIMPLE_HINT</span></span>
+<span class="line"><span>    props:</span></span>
+<span class="line"><span>      foo: bar</span></span>
+<span class="line"><span>  user-id-value-match-algorithm:</span></span>
+<span class="line"><span>    type: VALUE_MATCH</span></span>
+<span class="line"><span>    props:</span></span>
+<span class="line"><span>      operation: insert</span></span>
+<span class="line"><span>      column: user_id</span></span>
+<span class="line"><span>      value: 0</span></span>
+<span class="line"><span>      </span></span>
+<span class="line"><span>sql-parser:</span></span>
+<span class="line"><span>  sql-comment-parse-enabled: true</span></span></code></pre></div><p><strong>注意</strong>： 如果使用注解影子算法，需要开启解析 SQL 注释配置项 sql-comment-parse-enabled: true。默认关闭。 请参考 SQL 解析配置</p><h3 id="影子库环境" tabindex="-1">影子库环境 <a class="header-anchor" href="#影子库环境" aria-label="Permalink to &quot;影子库环境&quot;">​</a></h3><ul><li><p>创建影子库 ds_shadow。</p></li><li><p>创建影子表，表结构与生产环境必须一致。假设在影子库创建 t_order 表。创建表语句需要添加 SQL 注释 <code>/*foo:bar,...*/</code>。即：</p></li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>CREATE TABLE t_order (order_id INT(11) primary key, user_id int(11) not null, ...) /*foo:bar,...*/</span></span></code></pre></div><p>执行到影子库。</p><p><strong>注意</strong>：如果使用 MySQL 客户端进行测试，链接需要使用参数：-c 例如：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>mysql&gt; mysql -u root -h127.0.0.1 -P3306 -proot -c</span></span></code></pre></div><p>参数说明：保留注释，发送注释到服务端。</p><p>执行包含注解 SQL 例如：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>SELECT * FROM table_name /*shadow:true,foo:bar*/;</span></span></code></pre></div><p>不使用参数 -c 会被 MySQL 客户端截取注释语句变为:</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>SELECT * FROM table_name;</span></span></code></pre></div><p>影响测试结果。</p><h3 id="影子算法使用" tabindex="-1">影子算法使用 <a class="header-anchor" href="#影子算法使用" aria-label="Permalink to &quot;影子算法使用&quot;">​</a></h3><h4 id="列影子算法使用" tabindex="-1">列影子算法使用 <a class="header-anchor" href="#列影子算法使用" aria-label="Permalink to &quot;列影子算法使用&quot;">​</a></h4><p>假设 t_order 表中包含下单用户ID的 user_id 列。 实现的效果，当用户ID为 0 的用户创建订单产生的数据。 即：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>INSERT INTO t_order (order_id, user_id, ...) VALUES (xxx..., 0, ...)</span></span></code></pre></div><p>会执行到影子库，其他数据执行到生产库。</p><p>无需修改任何 SQL 或者代码，只需要对压力测试的数据进行控制就可以实现在线的压力测试。</p><p>算法配置如下（YAML 格式展示）：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>shadow-algorithms:</span></span>
+<span class="line"><span>  user-id-value-match-algorithm:</span></span>
+<span class="line"><span>    type: VALUE_MATCH</span></span>
+<span class="line"><span>    props:</span></span>
+<span class="line"><span>      operation: insert</span></span>
+<span class="line"><span>      column: user_id</span></span>
+<span class="line"><span>      value: 0</span></span></code></pre></div><p><strong>注意</strong>：影子表使用列影子算法时，相同类型操作（INSERT, UPDATE, DELETE, SELECT）目前仅支持单个字段。</p><h4 id="使用-hint-影子算法" tabindex="-1">使用 Hint 影子算法 <a class="header-anchor" href="#使用-hint-影子算法" aria-label="Permalink to &quot;使用 Hint 影子算法&quot;">​</a></h4><p>假设 t_order 表中不包含可以对值进行匹配的列。添加注解 <code>/*foo:bar,...*/</code> 到执行 SQL 中，即：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>SELECT * FROM t_order WHERE order_id = xxx /*foo:bar,...*/</span></span></code></pre></div><p>会执行到影子库，其他数据执行到生产库。</p><p>算法配置如下（YAML 格式展示）：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>shadow-algorithms:</span></span>
+<span class="line"><span>  simple-hint-algorithm:</span></span>
+<span class="line"><span>    type: SIMPLE_HINT</span></span>
+<span class="line"><span>    props:</span></span>
+<span class="line"><span>      foo: bar</span></span></code></pre></div><h4 id="混合使用影子模式" tabindex="-1">混合使用影子模式 <a class="header-anchor" href="#混合使用影子模式" aria-label="Permalink to &quot;混合使用影子模式&quot;">​</a></h4><p>假设对 t_order 表压测需要覆盖以上两种场景，即，</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>INSERT INTO t_order (order_id, user_id, ...) VALUES (xxx..., 0, ...);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>SELECT * FROM t_order WHERE order_id = xxx /*foo:bar,...*/;</span></span></code></pre></div><p>都会执行到影子库，其他数据执行到生产库。</p><p>算法配置如下（YAML 格式展示）：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>shadow-algorithms:</span></span>
+<span class="line"><span>  user-id-value-match-algorithm:</span></span>
+<span class="line"><span>    type: VALUE_MATCH</span></span>
+<span class="line"><span>    props:</span></span>
+<span class="line"><span>      operation: insert</span></span>
+<span class="line"><span>      column: user_id</span></span>
+<span class="line"><span>      value: 0</span></span>
+<span class="line"><span>  simple-hint-algorithm:</span></span>
+<span class="line"><span>    type: SIMPLE_HINT</span></span>
+<span class="line"><span>    props:</span></span>
+<span class="line"><span>      foo: bar</span></span></code></pre></div><h4 id="使用默认影子算法" tabindex="-1">使用默认影子算法 <a class="header-anchor" href="#使用默认影子算法" aria-label="Permalink to &quot;使用默认影子算法&quot;">​</a></h4><p>假设对 t_order 表压测使用列影子算法，其他相关其他表都需要使用 Hint 影子算法。即,</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>INSERT INTO t_order (order_id, user_id, ...) VALUES (xxx..., 0, ...);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>INSERT INTO t_xxx_1 (order_item_id, order_id, ...) VALUES (xxx..., xxx..., ...) /*foo:bar,...*/;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>SELECT * FROM t_xxx_2 WHERE order_id = xxx /*foo:bar,...*/;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>SELECT * FROM t_xxx_3 WHERE order_id = xxx /*foo:bar,...*/;</span></span></code></pre></div><p>都会执行到影子库，其他数据执行到生产库。</p><p>配置如下（YAML 格式展示）：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>data-sources:</span></span>
+<span class="line"><span>  shadow-data-source:</span></span>
+<span class="line"><span>    source-data-source-name: ds</span></span>
+<span class="line"><span>    shadow-data-source-name: ds-shadow</span></span>
+<span class="line"><span>tables:</span></span>
+<span class="line"><span>  t_order:</span></span>
+<span class="line"><span>    data-source-names: shadow-data-source</span></span>
+<span class="line"><span>    shadow-algorithm-names:</span></span>
+<span class="line"><span>      - simple-hint-algorithm</span></span>
+<span class="line"><span>      - user-id-value-match-algorithm</span></span>
+<span class="line"><span>default-shadow-algorithm-name: simple-note-algorithm</span></span>
+<span class="line"><span>shadow-algorithms:</span></span>
+<span class="line"><span>  simple-hint-algorithm:</span></span>
+<span class="line"><span>    type: SIMPLE_HINT</span></span>
+<span class="line"><span>    props:</span></span>
+<span class="line"><span>      foo: bar</span></span>
+<span class="line"><span>  user-id-value-match-algorithm:</span></span>
+<span class="line"><span>    type: VALUE_MATCH</span></span>
+<span class="line"><span>    props:</span></span>
+<span class="line"><span>      operation: insert</span></span>
+<span class="line"><span>      column: user_id</span></span>
+<span class="line"><span>      value: 0</span></span>
+<span class="line"><span>      </span></span>
+<span class="line"><span>sql-parser:</span></span>
+<span class="line"><span>  sql-comment-parse-enabled: true</span></span></code></pre></div><p><strong>注意</strong> 默认影子算法仅支持 Hint 影子算法。 使用时必须确保配置文件中 props 的配置项小于等于 SQL 注释中的配置项，且配置文件的具体配置要和 SQL 注释中写的配置一样，配置文件中配置项越少，匹配条件越宽松</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>simple-note-algorithm:</span></span>
+<span class="line"><span>  type: SIMPLE_HINT</span></span>
+<span class="line"><span>  props:</span></span>
+<span class="line"><span>    foo: bar</span></span>
+<span class="line"><span>    foo1: bar1</span></span></code></pre></div><p>如当前 props 项中配置了 2 条配置，在 SQL 中可以匹配的写法有如下：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>SELECT * FROM t_xxx_2 WHERE order_id = xxx /*foo:bar, foo1:bar1*/</span></span>
+<span class="line"><span>SELECT * FROM t_xxx_2 WHERE order_id = xxx /*foo:bar, foo1:bar1, foo2:bar2, ...*/</span></span></code></pre></div><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>simple-note-algorithm:</span></span>
+<span class="line"><span>  type: SIMPLE_HINT</span></span>
+<span class="line"><span>  props:</span></span>
+<span class="line"><span>    foo: bar</span></span></code></pre></div><p>如当前 props 项中配置了 1 条配置，在sql中可以匹配的写法有如下：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>SELECT * FROM t_xxx_2 WHERE order_id = xxx /*foo:foo*/</span></span>
+<span class="line"><span>SELECT * FROM t_xxx_2 WHERE order_id = xxx /*foo:foo, foo1:bar1, ...*/</span></span></code></pre></div><p>本文转自 <a href="https://pdai.tech" target="_blank" rel="noreferrer">https://pdai.tech</a>，如有侵权，请联系删除。</p>`,79)]))}const x=n(t,[["render",o]]);export{m as __pageData,x as default};

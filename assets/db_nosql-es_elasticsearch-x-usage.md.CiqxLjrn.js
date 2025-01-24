@@ -1,0 +1,149 @@
+import{_ as a,c as n,ai as p,o as e}from"./chunks/framework.BrYByd3F.js";const t="/vitepress-blog-template/images/db/es/es-usage-1.png",l="/vitepress-blog-template/images/db/es/es-usage-2.png",o="/vitepress-blog-template/images/db/es/es-usage-3.png",i="/vitepress-blog-template/images/db/es/es-usage-4.png",c="/vitepress-blog-template/images/db/es/es-usage-5.png",u="/vitepress-blog-template/images/db/es/es-usage-6.png",r="/vitepress-blog-template/images/db/es/es-usage-7.png",d="/vitepress-blog-template/images/db/es/es-usage-8.png",q="/vitepress-blog-template/images/db/es/es-usage-9.png",h="/vitepress-blog-template/images/db/es/es-usage-10.png",g="/vitepress-blog-template/images/db/es/es-usage-11.png",b="/vitepress-blog-template/images/db/es/es-usage-12.png",T=JSON.parse('{"title":"ES详解 - 入门：查询和聚合的基础使用","description":"","frontmatter":{},"headers":[],"relativePath":"db/nosql-es/elasticsearch-x-usage.md","filePath":"db/nosql-es/elasticsearch-x-usage.md","lastUpdated":1737706346000}'),m={name:"db/nosql-es/elasticsearch-x-usage.md"};function k(v,s,_,y,f,x){return e(),n("div",null,s[0]||(s[0]=[p(`<h1 id="es详解-入门-查询和聚合的基础使用" tabindex="-1">ES详解 - 入门：查询和聚合的基础使用 <a class="header-anchor" href="#es详解-入门-查询和聚合的基础使用" aria-label="Permalink to &quot;ES详解 - 入门：查询和聚合的基础使用&quot;">​</a></h1><blockquote><p>安装完ElasticSearch 和 Kibana后，为了快速上手，我们通过官网GitHub提供的一个数据进行入门学习，主要包括<strong>查询数据</strong>和<strong>聚合数据</strong>。@pdai</p></blockquote><h2 id="入门-从索引文档开始" tabindex="-1">入门：从索引文档开始 <a class="header-anchor" href="#入门-从索引文档开始" aria-label="Permalink to &quot;入门：从索引文档开始&quot;">​</a></h2><ul><li>索引一个文档</li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>PUT /customer/_doc/1</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;name&quot;: &quot;John Doe&quot;</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>为了方便测试，我们使用kibana的dev tool来进行学习测试：</p><p><img src="`+t+'" alt=""></p><p>查询刚才插入的文档</p><p><img src="'+l+`" alt=""></p><h2 id="学习准备-批量索引文档" tabindex="-1">学习准备：批量索引文档 <a class="header-anchor" href="#学习准备-批量索引文档" aria-label="Permalink to &quot;学习准备：批量索引文档&quot;">​</a></h2><blockquote><p>ES 还提供了批量操作，比如这里我们可以使用批量操作来插入一些数据，供我们在后面学习使用。</p></blockquote><p>使用批量来批处理文档操作比单独提交请求要快得多，因为它减少了网络往返。</p><ul><li><strong>下载测试数据</strong></li></ul><p>数据是index为bank，accounts.json <a href="https://github.com/elastic/elasticsearch/blob/v6.8.18/docs/src/test/resources/accounts.json" target="_blank" rel="noreferrer">下载地址在新窗口打开</a>（如果你无法下载，也可以clone ES的<a href="https://github.com/elastic/elasticsearch" target="_blank" rel="noreferrer">官方仓库在新窗口打开</a>，选择本文中使用的版本分支，然后进入/docs/src/test/resources/accounts.json目录获取）</p><p>数据的格式如下</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;account_number&quot;: 0,</span></span>
+<span class="line"><span>  &quot;balance&quot;: 16623,</span></span>
+<span class="line"><span>  &quot;firstname&quot;: &quot;Bradshaw&quot;,</span></span>
+<span class="line"><span>  &quot;lastname&quot;: &quot;Mckenzie&quot;,</span></span>
+<span class="line"><span>  &quot;age&quot;: 29,</span></span>
+<span class="line"><span>  &quot;gender&quot;: &quot;F&quot;,</span></span>
+<span class="line"><span>  &quot;address&quot;: &quot;244 Columbus Place&quot;,</span></span>
+<span class="line"><span>  &quot;employer&quot;: &quot;Euron&quot;,</span></span>
+<span class="line"><span>  &quot;email&quot;: &quot;bradshawmckenzie@euron.com&quot;,</span></span>
+<span class="line"><span>  &quot;city&quot;: &quot;Hobucken&quot;,</span></span>
+<span class="line"><span>  &quot;state&quot;: &quot;CO&quot;</span></span>
+<span class="line"><span>}</span></span></code></pre></div><ul><li><strong>批量插入数据</strong></li></ul><p>将accounts.json拷贝至指定目录，我这里放在<code>/opt/</code>下面,</p><p>然后执行</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>curl -H &quot;Content-Type: application/json&quot; -XPOST &quot;localhost:9200/bank/_bulk?pretty&amp;refresh&quot; --data-binary &quot;@/opt/accounts.json&quot;</span></span></code></pre></div><ul><li><strong>查看状态</strong></li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>[elasticsearch@pdai-centos root]$ curl &quot;localhost:9200/_cat/indices?v=true&quot; | grep bank</span></span>
+<span class="line"><span>  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current</span></span>
+<span class="line"><span>                                 Dload  Upload   Total   Spent    Left  Speed</span></span>
+<span class="line"><span>100  1524  100  1524    0     0   119k      0 --:--:-- --:--:-- --:--:--  124k</span></span>
+<span class="line"><span>yellow open   bank                            yq3eSlAWRMO2Td0Sl769rQ   1   1       1000            0    379.2kb        379.2kb</span></span>
+<span class="line"><span>[elasticsearch@pdai-centos root]$</span></span></code></pre></div><h2 id="查询数据" tabindex="-1">查询数据 <a class="header-anchor" href="#查询数据" aria-label="Permalink to &quot;查询数据&quot;">​</a></h2><blockquote><p>我们通过kibana来进行查询测试。</p></blockquote><h3 id="查询所有" tabindex="-1">查询所有 <a class="header-anchor" href="#查询所有" aria-label="Permalink to &quot;查询所有&quot;">​</a></h3><p><code>match_all</code>表示查询所有的数据，<code>sort</code>即按照什么字段排序</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /bank/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: { &quot;match_all&quot;: {} },</span></span>
+<span class="line"><span>  &quot;sort&quot;: [</span></span>
+<span class="line"><span>    { &quot;account_number&quot;: &quot;asc&quot; }</span></span>
+<span class="line"><span>  ]</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>结果</p><p><img src="`+o+`" alt=""></p><p>相关字段解释</p><ul><li><code>took</code> – Elasticsearch运行查询所花费的时间（以毫秒为单位）</li><li><code>timed_out</code> –搜索请求是否超时</li><li><code>_shards</code> - 搜索了多少个碎片，以及成功，失败或跳过了多少个碎片的细目分类。</li><li><code>max_score</code> – 找到的最相关文档的分数</li><li><code>hits.total.value</code> - 找到了多少个匹配的文档</li><li><code>hits.sort</code> - 文档的排序位置（不按相关性得分排序时）</li><li><code>hits._score</code> - 文档的相关性得分（使用match_all时不适用）</li></ul><h3 id="分页查询-from-size" tabindex="-1">分页查询(from+size) <a class="header-anchor" href="#分页查询-from-size" aria-label="Permalink to &quot;分页查询(from+size)&quot;">​</a></h3><p>本质上就是from和size两个字段</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /bank/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: { &quot;match_all&quot;: {} },</span></span>
+<span class="line"><span>  &quot;sort&quot;: [</span></span>
+<span class="line"><span>    { &quot;account_number&quot;: &quot;asc&quot; }</span></span>
+<span class="line"><span>  ],</span></span>
+<span class="line"><span>  &quot;from&quot;: 10,</span></span>
+<span class="line"><span>  &quot;size&quot;: 10</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>结果</p><p><img src="`+i+`" alt=""></p><h3 id="指定字段查询-match" tabindex="-1">指定字段查询：match <a class="header-anchor" href="#指定字段查询-match" aria-label="Permalink to &quot;指定字段查询：match&quot;">​</a></h3><p>如果要在字段中搜索特定字词，可以使用<code>match</code>; 如下语句将查询address 字段中包含 mill 或者 lane的数据</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /bank/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: { &quot;match&quot;: { &quot;address&quot;: &quot;mill lane&quot; } }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>结果</p><p><img src="`+c+`" alt=""></p><p>（由于ES底层是按照分词索引的，所以上述查询结果是address 字段中包含 mill 或者 lane的数据）</p><h3 id="查询段落匹配-match-phrase" tabindex="-1">查询段落匹配：match_phrase <a class="header-anchor" href="#查询段落匹配-match-phrase" aria-label="Permalink to &quot;查询段落匹配：match\\_phrase&quot;">​</a></h3><p>如果我们希望查询的条件是 address字段中包含 &quot;mill lane&quot;，则可以使用<code>match_phrase</code></p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /bank/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: { &quot;match_phrase&quot;: { &quot;address&quot;: &quot;mill lane&quot; } }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>结果</p><p><img src="`+u+`" alt=""></p><h3 id="多条件查询-bool" tabindex="-1">多条件查询: bool <a class="header-anchor" href="#多条件查询-bool" aria-label="Permalink to &quot;多条件查询: bool&quot;">​</a></h3><p>如果要构造更复杂的查询，可以使用<code>bool</code>查询来组合多个查询条件。</p><p>例如，以下请求在bank索引中搜索40岁客户的帐户，但不包括居住在爱达荷州（ID）的任何人</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /bank/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;bool&quot;: {</span></span>
+<span class="line"><span>      &quot;must&quot;: [</span></span>
+<span class="line"><span>        { &quot;match&quot;: { &quot;age&quot;: &quot;40&quot; } }</span></span>
+<span class="line"><span>      ],</span></span>
+<span class="line"><span>      &quot;must_not&quot;: [</span></span>
+<span class="line"><span>        { &quot;match&quot;: { &quot;state&quot;: &quot;ID&quot; } }</span></span>
+<span class="line"><span>      ]</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>结果</p><p><img src="`+r+`" alt=""></p><p><code>must</code>, <code>should</code>, <code>must_not</code> 和 <code>filter</code> 都是<code>bool</code>查询的子句。那么<code>filter</code>和上述<code>query</code>子句有啥区别呢？</p><h3 id="查询条件-query-or-filter" tabindex="-1">查询条件：query or filter <a class="header-anchor" href="#查询条件-query-or-filter" aria-label="Permalink to &quot;查询条件：query or filter&quot;">​</a></h3><p>先看下如下查询, 在<code>bool</code>查询的子句中同时具备query/must 和 filter</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /bank/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;bool&quot;: {</span></span>
+<span class="line"><span>      &quot;must&quot;: [</span></span>
+<span class="line"><span>        {</span></span>
+<span class="line"><span>          &quot;match&quot;: {</span></span>
+<span class="line"><span>            &quot;state&quot;: &quot;ND&quot;</span></span>
+<span class="line"><span>          }</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>      ],</span></span>
+<span class="line"><span>      &quot;filter&quot;: [</span></span>
+<span class="line"><span>        {</span></span>
+<span class="line"><span>          &quot;term&quot;: {</span></span>
+<span class="line"><span>            &quot;age&quot;: &quot;40&quot;</span></span>
+<span class="line"><span>          }</span></span>
+<span class="line"><span>        },</span></span>
+<span class="line"><span>        {</span></span>
+<span class="line"><span>          &quot;range&quot;: {</span></span>
+<span class="line"><span>            &quot;balance&quot;: {</span></span>
+<span class="line"><span>              &quot;gte&quot;: 20000,</span></span>
+<span class="line"><span>              &quot;lte&quot;: 30000</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>          }</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>      ]</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>结果</p><p><img src="`+d+`" alt=""></p><p>两者都可以写查询条件，而且语法也类似。区别在于，<strong>query 上下文的条件是用来给文档打分的，匹配越好 _score 越高；filter 的条件只产生两种结果：符合与不符合，后者被过滤掉</strong>。</p><p>所以，我们进一步看只包含filter的查询</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /bank/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;query&quot;: {</span></span>
+<span class="line"><span>    &quot;bool&quot;: {</span></span>
+<span class="line"><span>      &quot;filter&quot;: [</span></span>
+<span class="line"><span>        {</span></span>
+<span class="line"><span>          &quot;term&quot;: {</span></span>
+<span class="line"><span>            &quot;age&quot;: &quot;40&quot;</span></span>
+<span class="line"><span>          }</span></span>
+<span class="line"><span>        },</span></span>
+<span class="line"><span>        {</span></span>
+<span class="line"><span>          &quot;range&quot;: {</span></span>
+<span class="line"><span>            &quot;balance&quot;: {</span></span>
+<span class="line"><span>              &quot;gte&quot;: 20000,</span></span>
+<span class="line"><span>              &quot;lte&quot;: 30000</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>          }</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>      ]</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>结果，显然无_score</p><p><img src="`+q+`" alt=""></p><h2 id="聚合查询-aggregation" tabindex="-1">聚合查询：Aggregation <a class="header-anchor" href="#聚合查询-aggregation" aria-label="Permalink to &quot;聚合查询：Aggregation&quot;">​</a></h2><blockquote><p>我们知道SQL中有group by，在ES中它叫Aggregation，即聚合运算。</p></blockquote><h3 id="简单聚合" tabindex="-1">简单聚合 <a class="header-anchor" href="#简单聚合" aria-label="Permalink to &quot;简单聚合&quot;">​</a></h3><p>比如我们希望计算出account每个州的统计数量， 使用<code>aggs</code>关键字对<code>state</code>字段聚合，被聚合的字段无需对分词统计，所以使用<code>state.keyword</code>对整个字段统计</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /bank/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;size&quot;: 0,</span></span>
+<span class="line"><span>  &quot;aggs&quot;: {</span></span>
+<span class="line"><span>    &quot;group_by_state&quot;: {</span></span>
+<span class="line"><span>      &quot;terms&quot;: {</span></span>
+<span class="line"><span>        &quot;field&quot;: &quot;state.keyword&quot;</span></span>
+<span class="line"><span>      }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>结果</p><p><img src="`+h+`" alt=""></p><p>因为无需返回条件的具体数据, 所以设置size=0，返回hits为空。</p><p><code>doc_count</code>表示bucket中每个州的数据条数。</p><h3 id="嵌套聚合" tabindex="-1">嵌套聚合 <a class="header-anchor" href="#嵌套聚合" aria-label="Permalink to &quot;嵌套聚合&quot;">​</a></h3><p>ES还可以处理个聚合条件的嵌套。</p><p>比如承接上个例子， 计算每个州的平均结余。涉及到的就是在对state分组的基础上，嵌套计算avg(balance):</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /bank/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;size&quot;: 0,</span></span>
+<span class="line"><span>  &quot;aggs&quot;: {</span></span>
+<span class="line"><span>    &quot;group_by_state&quot;: {</span></span>
+<span class="line"><span>      &quot;terms&quot;: {</span></span>
+<span class="line"><span>        &quot;field&quot;: &quot;state.keyword&quot;</span></span>
+<span class="line"><span>      },</span></span>
+<span class="line"><span>      &quot;aggs&quot;: {</span></span>
+<span class="line"><span>        &quot;average_balance&quot;: {</span></span>
+<span class="line"><span>          &quot;avg&quot;: {</span></span>
+<span class="line"><span>            &quot;field&quot;: &quot;balance&quot;</span></span>
+<span class="line"><span>          }</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>      }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>结果</p><p><img src="`+g+`" alt=""></p><h3 id="对聚合结果排序" tabindex="-1">对聚合结果排序 <a class="header-anchor" href="#对聚合结果排序" aria-label="Permalink to &quot;对聚合结果排序&quot;">​</a></h3><p>可以通过在aggs中对嵌套聚合的结果进行排序</p><p>比如承接上个例子， 对嵌套计算出的avg(balance)，这里是average_balance，进行排序</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>GET /bank/_search</span></span>
+<span class="line"><span>{</span></span>
+<span class="line"><span>  &quot;size&quot;: 0,</span></span>
+<span class="line"><span>  &quot;aggs&quot;: {</span></span>
+<span class="line"><span>    &quot;group_by_state&quot;: {</span></span>
+<span class="line"><span>      &quot;terms&quot;: {</span></span>
+<span class="line"><span>        &quot;field&quot;: &quot;state.keyword&quot;,</span></span>
+<span class="line"><span>        &quot;order&quot;: {</span></span>
+<span class="line"><span>          &quot;average_balance&quot;: &quot;desc&quot;</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>      },</span></span>
+<span class="line"><span>      &quot;aggs&quot;: {</span></span>
+<span class="line"><span>        &quot;average_balance&quot;: {</span></span>
+<span class="line"><span>          &quot;avg&quot;: {</span></span>
+<span class="line"><span>            &quot;field&quot;: &quot;balance&quot;</span></span>
+<span class="line"><span>          }</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>      }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>结果</p><p><img src="`+b+'" alt=""></p><p>本文转自 <a href="https://pdai.tech" target="_blank" rel="noreferrer">https://pdai.tech</a>，如有侵权，请联系删除。</p>',86)]))}const E=a(m,[["render",k]]);export{T as __pageData,E as default};

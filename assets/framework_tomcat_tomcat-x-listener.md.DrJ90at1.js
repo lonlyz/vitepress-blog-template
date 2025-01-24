@@ -1,0 +1,223 @@
+import{_ as n}from"./chunks/tomcat-x-listener-3.Bfqriuad.js";import{_ as a,c as e,ai as p,o as l}from"./chunks/framework.BrYByd3F.js";const i="/vitepress-blog-template/images/tomcat/tomcat-x-listener-1.jpg",t="/vitepress-blog-template/images/tomcat/tomcat-x-listener-2.jpg",c="/vitepress-blog-template/images/pics/0df5d84c-e7ca-4e3a-a688-bb8e68894467.png",L=JSON.parse('{"title":"Tomcat - 事件的监听机制：观察者模式","description":"","frontmatter":{},"headers":[],"relativePath":"framework/tomcat/tomcat-x-listener.md","filePath":"framework/tomcat/tomcat-x-listener.md","lastUpdated":1737706346000}'),r={name:"framework/tomcat/tomcat-x-listener.md"};function o(d,s,u,v,h,f){return l(),e("div",null,s[0]||(s[0]=[p(`<h1 id="tomcat-事件的监听机制-观察者模式" tabindex="-1">Tomcat - 事件的监听机制：观察者模式 <a class="header-anchor" href="#tomcat-事件的监听机制-观察者模式" aria-label="Permalink to &quot;Tomcat - 事件的监听机制：观察者模式&quot;">​</a></h1><blockquote><p>本文承接上文中Lifecycle中实现，引出Tomcat的监听机制。@pdai</p></blockquote><h2 id="引入" tabindex="-1">引入 <a class="header-anchor" href="#引入" aria-label="Permalink to &quot;引入&quot;">​</a></h2><blockquote><p>前几篇文章中，我们经常会涉及到Listener相关的内容，比如如下内容中；我们通过引入这些内容，来具体探讨事件监听机制。</p></blockquote><ul><li><strong>Lifecycle中出现的监听器</strong></li></ul><p>（老的版本中是LifecycleSupport接口）</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>public interface Lifecycle {</span></span>
+<span class="line"><span>    /** 第1类：针对监听器 **/</span></span>
+<span class="line"><span>    // 添加监听器</span></span>
+<span class="line"><span>    public void addLifecycleListener(LifecycleListener listener);</span></span>
+<span class="line"><span>    // 获取所以监听器</span></span>
+<span class="line"><span>    public LifecycleListener[] findLifecycleListeners();</span></span>
+<span class="line"><span>    // 移除某个监听器</span></span>
+<span class="line"><span>    public void removeLifecycleListener(LifecycleListener listener);</span></span>
+<span class="line"><span>    ...</span></span>
+<span class="line"><span>}</span></span></code></pre></div><ul><li><strong>多个组件中出现监听器</strong></li></ul><p>对应到整体架构图中</p><p><img src="`+i+'" alt="error.图片加载失败"></p><p>对应到代码中</p><p><img src="'+t+'" alt="error.图片加载失败"></p><h2 id="知识准备" tabindex="-1">知识准备 <a class="header-anchor" href="#知识准备" aria-label="Permalink to &quot;知识准备&quot;">​</a></h2><blockquote><p>理解上述监听器的需要你有些知识储备，一是设计模式中的观察者模式，另一个是事件监听机制。</p></blockquote><h3 id="观察者模式" tabindex="-1">观察者模式 <a class="header-anchor" href="#观察者模式" aria-label="Permalink to &quot;观察者模式&quot;">​</a></h3><blockquote><p>观察者模式(observer pattern): 在对象之间定义一对多的依赖, 这样一来, 当一个对象改变状态, 依赖它的对象都会收到通知, 并自动更新</p></blockquote><p>主题(Subject)具有注册和移除观察者、并通知所有观察者的功能，主题是通过维护一张观察者列表来实现这些操作的。</p><p>观察者(Observer)的注册功能需要调用主题的 registerObserver() 方法。</p><p><img src="'+c+'" alt="error.图片加载失败"></p><p>详情请参考 设计模式：<a href="https://pdai.tech/md/dev-spec/pattern/19_observer.html" target="_blank" rel="noreferrer">行为型 - 观察者(Observer)</a></p><h3 id="事件监听机制" tabindex="-1">事件监听机制 <a class="header-anchor" href="#事件监听机制" aria-label="Permalink to &quot;事件监听机制&quot;">​</a></h3><blockquote><p>JDK 1.0及更早版本的事件模型基于职责链模式，但是这种模型不适用于复杂的系统，因此在JDK 1.1及以后的各个版本中，事件处理模型采用基于观察者模式的委派事件模型(DelegationEvent Model, DEM)，即一个Java组件所引发的事件并不由引发事件的对象自己来负责处理，而是委派给独立的事件处理对象负责。这并不是说事件模型是基于Observer和Observable的，事件模型与Observer和Observable没有任何关系，Observer和Observable只是观察者模式的一种实现而已。</p></blockquote><p>java中的事件机制的参与者有<strong>3种角色</strong></p><ul><li><p><code>Event Eource</code>：事件源，发起事件的主体。</p></li><li><p><code>Event Object</code>：事件状态对象，传递的信息载体，就好比Watcher的update方法的参数，可以是事件源本身，一般作为参数存在于listerner 的方法之中。</p></li><li><p><code>Event Listener</code>：事件监听器，当它监听到event object产生的时候，它就调用相应的方法，进行处理。</p></li></ul><p>其实还有个东西比较重要：事件环境，在这个环境中，可以添加事件监听器，可以产生事件，可以触发事件监听器。</p><p><img src="'+n+`" alt="error.图片加载失败"></p><p>这个和观察者模式大同小异，但要比观察者模式复杂一些。一些逻辑需要手动实现，比如注册监听器，删除监听器，获取监听器数量等等，这里的eventObject也是你自己实现的。</p><blockquote><p>下面我们看下Java中事件机制的实现，理解下面的类结构将帮助你Tomcat中监听机制的实现。</p></blockquote><ul><li>监听器</li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>public interface EventListener extends java.util.EventListener {</span></span>
+<span class="line"><span>    void handleEvent(EventObject event);</span></span>
+<span class="line"><span>}</span></span></code></pre></div><ul><li>监听事件</li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>public class EventObject extends java.util.EventObject{</span></span>
+<span class="line"><span>    private static final long serialVersionUID = 1L;</span></span>
+<span class="line"><span>    public EventObject(Object source){</span></span>
+<span class="line"><span>        super(source);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    public void doEvent(){</span></span>
+<span class="line"><span>        System.out.println(&quot;通知一个事件源 source :&quot;+ this.getSource());</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><ul><li>事件源：</li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>public class EventSource {</span></span>
+<span class="line"><span>    //监听器列表，监听器的注册则加入此列表</span></span>
+<span class="line"><span>    private Vector&lt;EventListener&gt; ListenerList = new Vector&lt;&gt;();</span></span>
+<span class="line"><span> </span></span>
+<span class="line"><span>    //注册监听器</span></span>
+<span class="line"><span>    public void addListener(EventListener eventListener) {</span></span>
+<span class="line"><span>        ListenerList.add(eventListener);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span> </span></span>
+<span class="line"><span>    //撤销注册</span></span>
+<span class="line"><span>    public void removeListener(EventListener eventListener) {</span></span>
+<span class="line"><span>        ListenerList.remove(eventListener);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span> </span></span>
+<span class="line"><span>    //接受外部事件</span></span>
+<span class="line"><span>    public void notifyListenerEvents(EventObject event) {</span></span>
+<span class="line"><span>        for (EventListener eventListener : ListenerList) {</span></span>
+<span class="line"><span>            eventListener.handleEvent(event);</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>}</span></span></code></pre></div><ul><li>测试</li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>public static void main(String[] args) {</span></span>
+<span class="line"><span>    EventSource eventSource = new EventSource();</span></span>
+<span class="line"><span>    eventSource.addListener(new EventListener() {</span></span>
+<span class="line"><span>        @Override</span></span>
+<span class="line"><span>        public void handleEvent(EventObject event) {</span></span>
+<span class="line"><span>            event.doEvent();</span></span>
+<span class="line"><span>            if (event.getSource().equals(&quot;closeWindows&quot;)) {</span></span>
+<span class="line"><span>                System.out.println(&quot;doClose&quot;);</span></span>
+<span class="line"><span>            }</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>    });</span></span>
+<span class="line"><span>    eventSource.addListener(new EventListener() {</span></span>
+<span class="line"><span>        @Override</span></span>
+<span class="line"><span>        public void handleEvent(EventObject event) {</span></span>
+<span class="line"><span>            System.out.println(&quot;gogogo&quot;);</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>    });</span></span>
+<span class="line"><span>    /*</span></span>
+<span class="line"><span>      * 传入openWindows事件，通知listener，事件监听器，</span></span>
+<span class="line"><span>      对open事件感兴趣的listener将会执行</span></span>
+<span class="line"><span>      **/</span></span>
+<span class="line"><span>    eventSource.notifyListenerEvents(new EventObject(&quot;openWindows&quot;));</span></span>
+<span class="line"><span>}</span></span></code></pre></div><h2 id="tomcat中监听机制-server部分" tabindex="-1">Tomcat中监听机制（Server部分） <a class="header-anchor" href="#tomcat中监听机制-server部分" aria-label="Permalink to &quot;Tomcat中监听机制（Server部分）&quot;">​</a></h2><blockquote><p>基于上面的事件监听的代码结构，你就能知道Tomcat中事件监听的类结构了。</p></blockquote><ul><li>首先要定义一个监听器，它有一个监听方法，用来接受一个监听事件</li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>public interface LifecycleListener {</span></span>
+<span class="line"><span>    /**</span></span>
+<span class="line"><span>     * Acknowledge the occurrence of the specified event.</span></span>
+<span class="line"><span>     *</span></span>
+<span class="line"><span>     * @param event LifecycleEvent that has occurred</span></span>
+<span class="line"><span>     */</span></span>
+<span class="line"><span>    public void lifecycleEvent(LifecycleEvent event);</span></span>
+<span class="line"><span>}</span></span></code></pre></div><ul><li>监听事件, 由于它是lifecycle的监听器，所以它握有一个lifecycle实例</li></ul><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>/**</span></span>
+<span class="line"><span> * General event for notifying listeners of significant changes on a component</span></span>
+<span class="line"><span> * that implements the Lifecycle interface.</span></span>
+<span class="line"><span> *</span></span>
+<span class="line"><span> * @author Craig R. McClanahan</span></span>
+<span class="line"><span> */</span></span>
+<span class="line"><span>public final class LifecycleEvent extends EventObject {</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    private static final long serialVersionUID = 1L;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    /**</span></span>
+<span class="line"><span>     * Construct a new LifecycleEvent with the specified parameters.</span></span>
+<span class="line"><span>     *</span></span>
+<span class="line"><span>     * @param lifecycle Component on which this event occurred</span></span>
+<span class="line"><span>     * @param type Event type (required)</span></span>
+<span class="line"><span>     * @param data Event data (if any)</span></span>
+<span class="line"><span>     */</span></span>
+<span class="line"><span>    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {</span></span>
+<span class="line"><span>        super(lifecycle);</span></span>
+<span class="line"><span>        this.type = type;</span></span>
+<span class="line"><span>        this.data = data;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    /**</span></span>
+<span class="line"><span>     * The event data associated with this event.</span></span>
+<span class="line"><span>     */</span></span>
+<span class="line"><span>    private final Object data;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    /**</span></span>
+<span class="line"><span>     * The event type this instance represents.</span></span>
+<span class="line"><span>     */</span></span>
+<span class="line"><span>    private final String type;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    /**</span></span>
+<span class="line"><span>     * @return the event data of this event.</span></span>
+<span class="line"><span>     */</span></span>
+<span class="line"><span>    public Object getData() {</span></span>
+<span class="line"><span>        return data;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    /**</span></span>
+<span class="line"><span>     * @return the Lifecycle on which this event occurred.</span></span>
+<span class="line"><span>     */</span></span>
+<span class="line"><span>    public Lifecycle getLifecycle() {</span></span>
+<span class="line"><span>        return (Lifecycle) getSource();</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    /**</span></span>
+<span class="line"><span>     * @return the event type of this event.</span></span>
+<span class="line"><span>     */</span></span>
+<span class="line"><span>    public String getType() {</span></span>
+<span class="line"><span>        return this.type;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><ul><li>事件源的接口和实现</li></ul><p>事件源的接口：在Lifecycle中</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>public interface Lifecycle {</span></span>
+<span class="line"><span>    /** 第1类：针对监听器 **/</span></span>
+<span class="line"><span>    // 添加监听器</span></span>
+<span class="line"><span>    public void addLifecycleListener(LifecycleListener listener);</span></span>
+<span class="line"><span>    // 获取所以监听器</span></span>
+<span class="line"><span>    public LifecycleListener[] findLifecycleListeners();</span></span>
+<span class="line"><span>    // 移除某个监听器</span></span>
+<span class="line"><span>    public void removeLifecycleListener(LifecycleListener listener);</span></span>
+<span class="line"><span>    ...</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>事件源的实现： 在 LifecycleBase 中</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span> /**</span></span>
+<span class="line"><span>  * The list of registered LifecycleListeners for event notifications.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>private final List&lt;LifecycleListener&gt; lifecycleListeners = new CopyOnWriteArrayList&lt;&gt;();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * {@inheritDoc}</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>public void addLifecycleListener(LifecycleListener listener) {</span></span>
+<span class="line"><span>    lifecycleListeners.add(listener);</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * {@inheritDoc}</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>public LifecycleListener[] findLifecycleListeners() {</span></span>
+<span class="line"><span>    return lifecycleListeners.toArray(new LifecycleListener[0]);</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * {@inheritDoc}</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>@Override</span></span>
+<span class="line"><span>public void removeLifecycleListener(LifecycleListener listener) {</span></span>
+<span class="line"><span>    lifecycleListeners.remove(listener);</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/**</span></span>
+<span class="line"><span>  * Allow sub classes to fire {@link Lifecycle} events.</span></span>
+<span class="line"><span>  *</span></span>
+<span class="line"><span>  * @param type  Event type</span></span>
+<span class="line"><span>  * @param data  Data associated with event.</span></span>
+<span class="line"><span>  */</span></span>
+<span class="line"><span>protected void fireLifecycleEvent(String type, Object data) {</span></span>
+<span class="line"><span>    LifecycleEvent event = new LifecycleEvent(this, type, data);</span></span>
+<span class="line"><span>    for (LifecycleListener listener : lifecycleListeners) {</span></span>
+<span class="line"><span>        listener.lifecycleEvent(event);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><ul><li>接下来是调用了</li></ul><p>比如在LifecycleBase, 停止方法是基于LifecycleState状态改变来触发上面的fireLifecycleEvent方法：</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>@Override</span></span>
+<span class="line"><span>public final synchronized void stop() throws LifecycleException {</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    if (LifecycleState.STOPPING_PREP.equals(state) || LifecycleState.STOPPING.equals(state) ||</span></span>
+<span class="line"><span>            LifecycleState.STOPPED.equals(state)) {</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        if (log.isDebugEnabled()) {</span></span>
+<span class="line"><span>            Exception e = new LifecycleException();</span></span>
+<span class="line"><span>            log.debug(sm.getString(&quot;lifecycleBase.alreadyStopped&quot;, toString()), e);</span></span>
+<span class="line"><span>        } else if (log.isInfoEnabled()) {</span></span>
+<span class="line"><span>            log.info(sm.getString(&quot;lifecycleBase.alreadyStopped&quot;, toString()));</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        return;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    if (state.equals(LifecycleState.NEW)) {</span></span>
+<span class="line"><span>        state = LifecycleState.STOPPED;</span></span>
+<span class="line"><span>        return;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    if (!state.equals(LifecycleState.STARTED) &amp;&amp; !state.equals(LifecycleState.FAILED)) {</span></span>
+<span class="line"><span>        invalidTransition(Lifecycle.BEFORE_STOP_EVENT);</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    try {</span></span>
+<span class="line"><span>        if (state.equals(LifecycleState.FAILED)) {</span></span>
+<span class="line"><span>            // @pdai：看这里</span></span>
+<span class="line"><span>            fireLifecycleEvent(BEFORE_STOP_EVENT, null);</span></span>
+<span class="line"><span>        } else {</span></span>
+<span class="line"><span>            setStateInternal(LifecycleState.STOPPING_PREP, null, false);</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        stopInternal();</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        // Shouldn&#39;t be necessary but acts as a check that sub-classes are</span></span>
+<span class="line"><span>        // doing what they are supposed to.</span></span>
+<span class="line"><span>        if (!state.equals(LifecycleState.STOPPING) &amp;&amp; !state.equals(LifecycleState.FAILED)) {</span></span>
+<span class="line"><span>            invalidTransition(Lifecycle.AFTER_STOP_EVENT);</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>        setStateInternal(LifecycleState.STOPPED, null, false);</span></span>
+<span class="line"><span>    } catch (Throwable t) {</span></span>
+<span class="line"><span>        handleSubClassException(t, &quot;lifecycleBase.stopFail&quot;, toString());</span></span>
+<span class="line"><span>    } finally {</span></span>
+<span class="line"><span>        if (this instanceof Lifecycle.SingleUse) {</span></span>
+<span class="line"><span>            // Complete stop process first</span></span>
+<span class="line"><span>            setStateInternal(LifecycleState.STOPPED, null, false);</span></span>
+<span class="line"><span>            destroy();</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre></div><p>本文转自 <a href="https://pdai.tech" target="_blank" rel="noreferrer">https://pdai.tech</a>，如有侵权，请联系删除。</p>`,51)]))}const g=a(r,[["render",o]]);export{L as __pageData,g as default};
